@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Reflection;
 using System.Text;
 
@@ -98,9 +99,12 @@ namespace euroma2
                 });*/
             });
 
-            services.AddDbContext<DataContext>(options => options.UseSqlServer(
-             Configuration.GetConnectionString("ConnectionString")
-            )); ;
+            services.AddDbContext<DataContext>(options => options.UseMySql(
+             Configuration.GetConnectionString("ConnectionString"),
+                ServerVersion.AutoDetect(Configuration.GetConnectionString("ConnectionString"))
+             )
+
+            );
 
             services.AddScoped<IUserService, UserService>();
 

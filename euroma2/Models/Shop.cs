@@ -4,6 +4,7 @@
 // Script-Migration
 // Update-Database
 
+using euroma2.Models.Events;
 using System.Runtime.CompilerServices;
 
 namespace euroma2.Models
@@ -13,14 +14,15 @@ namespace euroma2.Models
         public int id { get; set; }
         public string title { get; set; }
         public ShopType type { get; set; }
-        public List<LineaShopCategory> category { get; set; }
-        public List<LineaShopSubCategory> subcategory { get; set; }
+        public List<LineaShopCategory> categoryId { get; set; }
+        public List<LineaShopSubCategory> subcategoryId { get; set; }
         public string logo { get; set; }
         public string photo { get; set; }
         public ICollection<oDay> openingHours { get; set; }
         public string phoneNumber { get; set; }
         public string description { get; set; }
-
+        public string firstOpeningDay { get; set; }
+        public List<LineaInterest> interestIds { get; set; }
 
     }
 
@@ -52,18 +54,21 @@ namespace euroma2.Models
             this.openingHours = t.openingHours;
             this.phoneNumber = t.phoneNumber;
             this.description = t.description;
+            this.firstOpeningDay = t.firstOpeningDay;
         }
 
         public int id { get; set; }
         public string title { get; set; }
         public ShopType type { get; set; }
-        public List<ShopCategory> category { get; set; }
-        public List<ShopSubCategory> subcategory { get; set; }
+        public List<ShopCategory> categoryId { get; set; }
+        public List<ShopSubCategory> subcategoryId { get; set; }
         public string logo { get; set; }
         public string photo { get; set; }
         public ICollection<oDay> openingHours { get; set; }
         public string phoneNumber { get; set; }
         public string description { get; set; }
+        public string firstOpeningDay { get; set; }
+        public List<int> interestIds { get; set; }
 
     }
 
@@ -99,8 +104,8 @@ namespace euroma2.Models
     public class oDay {
         public int id { get; set; }
         public DayName description { get; set; }
-        public string hi { get; set; }
-        public string hf { get; set; }
+        public string from { get; set; }
+        public string to { get; set; }
     }
 
    

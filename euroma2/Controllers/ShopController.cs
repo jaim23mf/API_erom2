@@ -1,4 +1,5 @@
 ﻿using euroma2.Models;
+using euroma2.Models.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,8 +28,8 @@ namespace euroma2.Controllers
             var t = await _dbContext
                 .shop
                 .Include(a => a.openingHours)
-                .Include(a => a.category)
-                .Include(a => a.subcategory)
+                .Include(a => a.categoryId)
+                .Include(a => a.subcategoryId)
                 .ToListAsync();
 
             List<ShopView> sc = new List<ShopView>();
@@ -37,8 +38,9 @@ namespace euroma2.Controllers
             {
                 ShopView res = new ShopView(s);
 
-                res.category = await GetCategories(s.category);
-                res.subcategory = await GetSubCategories(s.subcategory);
+                res.categoryId = await GetCategories(s.categoryId);
+                res.subcategoryId = await GetSubCategories(s.subcategoryId);
+                res.interestIds = GetInterest(s.interestIds);
                 sc.Add(res);
             }
 
@@ -55,8 +57,8 @@ namespace euroma2.Controllers
             }
             var t = await _dbContext
                 .shop.Include(a => a.openingHours)
-                .Include(a => a.category)
-                .Include(a => a.subcategory).FirstOrDefaultAsync(p => p.id == id);
+                .Include(a => a.categoryId)
+                .Include(a => a.subcategoryId).FirstOrDefaultAsync(p => p.id == id);
 
             if (t == null)
             {
@@ -65,9 +67,9 @@ namespace euroma2.Controllers
 
             ShopView res = new ShopView(t);
 
-            res.category =  await GetCategories(t.category);
-            res.subcategory = await GetSubCategories(t.subcategory);
-
+            res.categoryId =  await GetCategories(t.categoryId);
+            res.subcategoryId = await GetSubCategories(t.subcategoryId);
+            res.interestIds = GetInterest(t.interestIds);
             return res;
         }
 
@@ -82,8 +84,8 @@ namespace euroma2.Controllers
             }
             var t = await _dbContext
                 .shop.Include(a => a.openingHours)
-                .Include(a => a.category)
-                .Include(a => a.subcategory).FirstOrDefaultAsync(p => p.id == id);
+                .Include(a => a.categoryId)
+                .Include(a => a.subcategoryId).FirstOrDefaultAsync(p => p.id == id);
 
             if (t == null)
             {
@@ -97,9 +99,22 @@ namespace euroma2.Controllers
             return res;
         }
 
+        private List<int> GetInterest(List<LineaInterest> interest)
+        {
+
+            List<int> lsc = new List<int>();
+            if (interest == null) { return lsc; }
+            foreach (LineaInterest ls in interest)
+            {
+                lsc.Add(ls.id_interest);
+            }
+            return lsc;
+        }
+
         private async Task<List<ShopCategory>> GetCategories(List<LineaShopCategory> cat) {
 
             List<ShopCategory> lsc = new List<ShopCategory>();
+            if (cat == null) { return lsc; }
 
             foreach (LineaShopCategory ls in cat) {
                 var sc = await GetCat(ls.id_category);
@@ -129,6 +144,7 @@ namespace euroma2.Controllers
         private async Task<List<ShopSubCategory>> GetSubCategories(List<LineaShopSubCategory> cat)
         {
             List<ShopSubCategory> lsc = new List<ShopSubCategory>();
+            if (cat == null) { return lsc; }
 
             foreach (LineaShopSubCategory ls in cat)
             {
@@ -164,10 +180,11 @@ namespace euroma2.Controllers
             _dbContext.shop.Add(shop);
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return CreatedAtAction(nameof(GetShop), new { id = shop.id, category = setCat(shop.id, shop.category), subcategory = setSubCat(shop.id, shop.subcategory) }, shop);
+            return CreatedAtAction(nameof(GetShop), new { id = shop.id, categoryId = setCat(shop.id, shop.categoryId), subcategoryId = setSubCat(shop.id, shop.subcategoryId) }, shop);
         }
 
         private List<LineaShopCategory> setCat(int id , List<LineaShopCategory> ls) {
+
             foreach (LineaShopCategory l in ls) { 
                 l.id_shop = id;
             }

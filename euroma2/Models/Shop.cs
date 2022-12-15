@@ -14,16 +14,23 @@ namespace euroma2.Models
         public int id { get; set; }
         public string title { get; set; }
         public ShopType type { get; set; }
-        public List<LineaShopCategory> categoryId { get; set; }
-        public List<LineaShopSubCategory> subcategoryId { get; set; }
+        public int categoryId { get; set; }
+        public int subcategoryId { get; set; }
         public string logo { get; set; }
         public string photo { get; set; }
         public ICollection<oDay> openingHours { get; set; }
         public string phoneNumber { get; set; }
         public string description { get; set; }
         public string firstOpeningDay { get; set; }
-        public List<LineaInterest> interestIds { get; set; }
+        public List<LineaInterest_shop> interestIds { get; set; }
 
+    }
+
+    public class LineaInterest_shop
+    {
+        public int id { get; set; }
+        public int id_interest { get; set; }
+        public int id_shop { get; set; }
     }
 
     public class ShopInfo {
@@ -55,13 +62,14 @@ namespace euroma2.Models
             this.phoneNumber = t.phoneNumber;
             this.description = t.description;
             this.firstOpeningDay = t.firstOpeningDay;
+
         }
 
         public int id { get; set; }
         public string title { get; set; }
         public ShopType type { get; set; }
-        public List<ShopCategory> categoryId { get; set; }
-        public List<ShopSubCategory> subcategoryId { get; set; }
+        public ShopCategory categoryId { get; set; }
+        public ShopSubCategory subcategoryId { get; set; }
         public string logo { get; set; }
         public string photo { get; set; }
         public ICollection<oDay> openingHours { get; set; }

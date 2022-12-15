@@ -38,7 +38,7 @@ namespace euroma2.Migrations
                     b.ToTable("Date_Range");
                 });
 
-            modelBuilder.Entity("euroma2.Models.Events.LineaInterest", b =>
+            modelBuilder.Entity("euroma2.Models.Events.LineaInterest_event", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -47,30 +47,17 @@ namespace euroma2.Migrations
                     b.Property<int?>("Mall_Eventid")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Promotionid")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Shopid")
-                        .HasColumnType("int");
-
                     b.Property<int>("id_event")
                         .HasColumnType("int");
 
                     b.Property<int>("id_interest")
                         .HasColumnType("int");
 
-                    b.Property<int>("id_promotion")
-                        .HasColumnType("int");
-
                     b.HasKey("id");
 
                     b.HasIndex("Mall_Eventid");
 
-                    b.HasIndex("Promotionid");
-
-                    b.HasIndex("Shopid");
-
-                    b.ToTable("LineaInterest");
+                    b.ToTable("LineaInterest_event");
                 });
 
             modelBuilder.Entity("euroma2.Models.Events.Mall_Event", b =>
@@ -301,7 +288,7 @@ namespace euroma2.Migrations
                     b.ToTable("interests");
                 });
 
-            modelBuilder.Entity("euroma2.Models.LineaShopCategory", b =>
+            modelBuilder.Entity("euroma2.Models.LineaInterest_shop", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -310,7 +297,7 @@ namespace euroma2.Migrations
                     b.Property<int?>("Shopid")
                         .HasColumnType("int");
 
-                    b.Property<int>("id_category")
+                    b.Property<int>("id_interest")
                         .HasColumnType("int");
 
                     b.Property<int>("id_shop")
@@ -320,29 +307,7 @@ namespace euroma2.Migrations
 
                     b.HasIndex("Shopid");
 
-                    b.ToTable("LineaShopCategory");
-                });
-
-            modelBuilder.Entity("euroma2.Models.LineaShopSubCategory", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Shopid")
-                        .HasColumnType("int");
-
-                    b.Property<int>("id_shop")
-                        .HasColumnType("int");
-
-                    b.Property<int>("id_subcategory")
-                        .HasColumnType("int");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("Shopid");
-
-                    b.ToTable("LineaShopSubCategory");
+                    b.ToTable("LineaInterest_shop");
                 });
 
             modelBuilder.Entity("euroma2.Models.Map.Floor_Nav_Point", b =>
@@ -440,6 +405,28 @@ namespace euroma2.Migrations
                     b.ToTable("oDay");
                 });
 
+            modelBuilder.Entity("euroma2.Models.Promo.LineaInterest_promo", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Promotionid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("id_interest")
+                        .HasColumnType("int");
+
+                    b.Property<int>("id_promo")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("Promotionid");
+
+                    b.ToTable("LineaInterest_promo");
+                });
+
             modelBuilder.Entity("euroma2.Models.Promo.Promotion", b =>
                 {
                     b.Property<int>("id")
@@ -532,6 +519,9 @@ namespace euroma2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("categoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -551,6 +541,9 @@ namespace euroma2.Migrations
                     b.Property<string>("photo")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("subcategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("title")
                         .IsRequired()
@@ -609,19 +602,11 @@ namespace euroma2.Migrations
                     b.ToTable("shopSubCategory");
                 });
 
-            modelBuilder.Entity("euroma2.Models.Events.LineaInterest", b =>
+            modelBuilder.Entity("euroma2.Models.Events.LineaInterest_event", b =>
                 {
                     b.HasOne("euroma2.Models.Events.Mall_Event", null)
                         .WithMany("interestIds")
                         .HasForeignKey("Mall_Eventid");
-
-                    b.HasOne("euroma2.Models.Promo.Promotion", null)
-                        .WithMany("interestIds")
-                        .HasForeignKey("Promotionid");
-
-                    b.HasOne("euroma2.Models.Shop", null)
-                        .WithMany("interestIds")
-                        .HasForeignKey("Shopid");
                 });
 
             modelBuilder.Entity("euroma2.Models.Events.Mall_Event", b =>
@@ -728,17 +713,10 @@ namespace euroma2.Migrations
                     b.Navigation("general");
                 });
 
-            modelBuilder.Entity("euroma2.Models.LineaShopCategory", b =>
+            modelBuilder.Entity("euroma2.Models.LineaInterest_shop", b =>
                 {
                     b.HasOne("euroma2.Models.Shop", null)
-                        .WithMany("categoryId")
-                        .HasForeignKey("Shopid");
-                });
-
-            modelBuilder.Entity("euroma2.Models.LineaShopSubCategory", b =>
-                {
-                    b.HasOne("euroma2.Models.Shop", null)
-                        .WithMany("subcategoryId")
+                        .WithMany("interestIds")
                         .HasForeignKey("Shopid");
                 });
 
@@ -769,6 +747,13 @@ namespace euroma2.Migrations
                     b.HasOne("euroma2.Models.Shop", null)
                         .WithMany("openingHours")
                         .HasForeignKey("Shopid");
+                });
+
+            modelBuilder.Entity("euroma2.Models.Promo.LineaInterest_promo", b =>
+                {
+                    b.HasOne("euroma2.Models.Promo.Promotion", null)
+                        .WithMany("interestIds")
+                        .HasForeignKey("Promotionid");
                 });
 
             modelBuilder.Entity("euroma2.Models.Promo.Promotion", b =>
@@ -806,13 +791,9 @@ namespace euroma2.Migrations
 
             modelBuilder.Entity("euroma2.Models.Shop", b =>
                 {
-                    b.Navigation("categoryId");
-
                     b.Navigation("interestIds");
 
                     b.Navigation("openingHours");
-
-                    b.Navigation("subcategoryId");
                 });
 #pragma warning restore 612, 618
         }

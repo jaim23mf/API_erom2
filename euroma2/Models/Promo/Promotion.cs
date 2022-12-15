@@ -17,8 +17,15 @@ namespace euroma2.Models.Promo
 
         public string description { get; set; }
 
-        public List<LineaInterest> interestIds { get; set; }
+        public List<LineaInterest_promo> interestIds { get; set; }
 
+    }
+
+    public class LineaInterest_promo
+    {
+        public int id { get; set; }
+        public int id_interest { get; set; }
+        public int id_promo { get; set; }
     }
 
     public class PromoView {

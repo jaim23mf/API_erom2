@@ -46,12 +46,12 @@ namespace euroma2.Controllers
 
         }
 
-        private List<int> GetInterest(List<LineaInterest> interest)
+        private List<int> GetInterest(List<LineaInterest_event> interest)
         {
 
             List<int> lsc = new List<int>();
 
-            foreach (LineaInterest ls in interest)
+            foreach (LineaInterest_event ls in interest)
             {
                 lsc.Add(ls.id_interest);
             }

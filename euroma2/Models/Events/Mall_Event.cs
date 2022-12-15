@@ -16,15 +16,14 @@ namespace euroma2.Models.Events
 
         public string description { get; set; }
 
-        public List<LineaInterest> interestIds { get; set; }
+        public List<LineaInterest_event> interestIds { get; set; }
 
     }
 
-    public class LineaInterest { 
+    public class LineaInterest_event { 
         public int id { get; set; }
         public int id_event { get; set; }
         public int id_interest { get; set; }
-        public int id_promotion { get; set; }
     }
 
     public class EventView

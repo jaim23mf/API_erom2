@@ -8,6 +8,7 @@ namespace euroma2.Models.Hours
         public General general { get; set; }
         public List<Exception_Rules> exceptions { get; set; }
 
+        public int id_shop { get; set; }
     }
 
     public class General {

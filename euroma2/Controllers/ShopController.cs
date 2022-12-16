@@ -1,10 +1,13 @@
 ﻿using euroma2.Models;
 using euroma2.Models.Events;
+using euroma2.Models.Hours;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace euroma2.Controllers
 {
@@ -28,6 +31,7 @@ namespace euroma2.Controllers
             var t = await _dbContext
                 .shop
                 .Include(a => a.openingHours)
+                .Include(a => a.interestIds)
                 .ToListAsync();
 
             return t;
@@ -218,6 +222,28 @@ namespace euroma2.Controllers
 
             _dbContext.Entry(shop).State = EntityState.Modified;
 
+
+            await DeleteInterestShop(shop.id);
+
+            
+
+            shop.interestIds.ForEach(item => 
+                    _dbContext.liShop.Add(item)
+            );
+
+            await DeleteOpeningShop(shop.id);
+            foreach (oDay li in shop.openingHours)
+            {
+                    _dbContext.oDay.Add(li);      
+            }
+
+            //await DeleteInterestShop(shop.id);
+            //await PostInterest(shop);
+
+            //await DeleteOpeningShop(shop.id);
+            //await PostOpening(shop);
+
+
             try
             {
                 await _dbContext.SaveChangesAsync();
@@ -232,11 +258,19 @@ namespace euroma2.Controllers
             return NoContent();
         }
 
+
         private bool ShopExists(long id)
         {
-            return (_dbContext.shop?.Any(e=>e.id==id)).GetValueOrDefault() ;
+            return (_dbContext.shop?.Any(e => e.id == id)).GetValueOrDefault();
         }
-
+        private bool LiShopExists(long id)
+        {
+            return (_dbContext.liShop?.Any(e=>e.id==id)).GetValueOrDefault() ;
+        }
+        private bool oDayExists(long id)
+        {
+            return (_dbContext.oDay?.Any(e => e.id == id)).GetValueOrDefault();
+        }
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteShop(int id)
@@ -249,8 +283,93 @@ namespace euroma2.Controllers
             if (ss == null) {             
                 return NotFound();
             }
+
+            await DeleteInterestShop(ss.id);
+            await DeleteOpeningShop(ss.id);
+
             _dbContext.shop.Remove(ss);
             await _dbContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+
+        private async Task<IActionResult> DeleteInterestShop(int id)
+        {
+            if (_dbContext.liShop == null)
+            {
+                return NotFound();
+            }
+            // var ss = await _dbContext.liShop.;
+
+            var query = from st in _dbContext.liShop
+                        where st.id_shop == id
+                        select st;
+
+            var student = query.ToList<LineaInterest_shop>();
+
+            if (student == null || student.Count == 0)
+            {
+                return NotFound();
+            }
+
+
+            foreach (var item in student)
+            {
+                _dbContext.liShop.Remove(item);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+        private async Task<IActionResult> DeleteOpeningShop(int id)
+        {
+            if (_dbContext.oDay == null)
+            {
+                return NotFound();
+            }
+            // var ss = await _dbContext.liShop.;
+
+            var query = from st in _dbContext.oDay
+                        where st.id_shop == id
+                        select st;
+
+            var student = query.ToList<oDay>();
+
+            if (student == null || student.Count == 0)
+            {
+                return NotFound();
+            }
+
+
+            foreach (var item in student)
+            {
+                _dbContext.oDay.Remove(item);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+        private async Task<IActionResult> PostInterest(Shop shop)
+        {
+            foreach (LineaInterest_shop li in shop.interestIds)
+            {
+                _dbContext.liShop.Add(li);
+            }
+            await _dbContext.SaveChangesAsync();
+            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
+            return NoContent();
+        }
+
+        private async Task<IActionResult> PostOpening(Shop shop)
+        {
+            foreach (oDay li in shop.openingHours)
+            {
+                _dbContext.oDay.Add(li);
+            }
+            await _dbContext.SaveChangesAsync();
+            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
             return NoContent();
         }
 

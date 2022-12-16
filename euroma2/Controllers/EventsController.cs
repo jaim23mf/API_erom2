@@ -20,7 +20,7 @@ namespace euroma2.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<EventView>>> GetPromos()
+        public async Task<ActionResult<IEnumerable<EventView>>> GetEvents()
         {
             if (_dbContext.events == null)
             {
@@ -106,7 +106,21 @@ namespace euroma2.Controllers
                 return BadRequest();
             }
 
+            /*await DeleteInterestEvent(promo.id);
+            await PostInterest(promo);
+            */
+            //_dbContext.Entry(events.interestIds).State = EntityState.Modified;
+
+            _dbContext.Entry(events.dateRange).State = EntityState.Modified;
+
             _dbContext.Entry(events).State = EntityState.Modified;
+
+
+            await DeleteInterestEvent(events.id);
+
+            events.interestIds.ForEach(item => 
+                    _dbContext.liEvents.Add(item)
+            );
 
             try
             {
@@ -132,6 +146,11 @@ namespace euroma2.Controllers
             return (_dbContext.events?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
+        private bool LiEventsExists(long id)
+        {
+            return (_dbContext.liEvents?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteEvents(int id)
@@ -145,7 +164,40 @@ namespace euroma2.Controllers
             {
                 return NotFound();
             }
+
+            await DeleteInterestEvent(ss.id);
+
             _dbContext.promotion.Remove(ss);
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
+        }
+
+
+        private async Task<IActionResult> DeleteInterestEvent(int id)
+        {
+            if (_dbContext.liEvents == null)
+            {
+                return NotFound();
+            }
+            // var ss = await _dbContext.liShop.;
+
+            var query = from st in _dbContext.liEvents
+                        where st.id_event == id
+                        select st;
+
+            var student = query.ToList<LineaInterest_event>();
+
+            if (student == null || student.Count == 0)
+            {
+                return NotFound();
+            }
+
+
+            foreach (var item in student)
+            {
+                _dbContext.liEvents.Remove(item);
+            }
+
             await _dbContext.SaveChangesAsync();
             return NoContent();
         }

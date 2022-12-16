@@ -45,6 +45,13 @@ namespace euroma2.Models
         public DbSet<Service_model> service { get; set; } = null!;
         public DbSet<FloorInfo> floorInfo { get; set; } = null!;
 
+        public DbSet<LineaInterest_shop> liShop { get; set; } = null!;
+        public DbSet<LineaInterest_promo> liPromo { get; set; } = null!;
+        public DbSet<LineaInterest_event> liEvents { get; set; } = null!;
+        public DbSet<oDay> oDay { get; set; } = null!;
+        public DbSet<Date_Range> dRange { get; set; } = null!;
+
+
 
        
 

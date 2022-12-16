@@ -5,6 +5,7 @@
 // Update-Database
 
 using euroma2.Models.Events;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 namespace euroma2.Models
@@ -28,6 +29,7 @@ namespace euroma2.Models
 
     public class LineaInterest_shop
     {
+        [Key]
         public int id { get; set; }
         public int id_interest { get; set; }
         public int id_shop { get; set; }
@@ -114,6 +116,7 @@ namespace euroma2.Models
         public DayName description { get; set; }
         public string from { get; set; }
         public string to { get; set; }
+        public int id_shop { get; set; }
     }
 
    

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace euroma2.Controllers
 {
@@ -23,7 +24,7 @@ namespace euroma2.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<PromoView>>> GetPromos()
+        public async Task<ActionResult<IEnumerable<Promotion>>> GetPromos()
         {
             if (_dbContext.promotion == null)
             {
@@ -34,18 +35,7 @@ namespace euroma2.Controllers
                 .Include(a => a.interestIds)
                 .Include(a => a.dateRange)
                 .ToListAsync();
-
-            List<PromoView> sc = new List<PromoView>();
-
-            foreach (Promotion s in t)
-            {
-                PromoView res = new PromoView(s);
-
-                res.interestIds = GetInterest(s.interestIds);
-                sc.Add(res);
-            }
-
-            return sc;
+            return t;
 
         }
 
@@ -110,6 +100,14 @@ namespace euroma2.Controllers
             }
 
             _dbContext.Entry(promo).State = EntityState.Modified;
+            _dbContext.Entry(promo.dateRange).State = EntityState.Modified;
+
+            await DeleteInterestPromo(id);
+
+
+            promo.interestIds.ForEach(item => _dbContext.liPromo.Add(item));
+
+
 
             try
             {
@@ -135,6 +133,11 @@ namespace euroma2.Controllers
             return (_dbContext.promotion?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
+        private bool liPromoExists(long id)
+        {
+            return (_dbContext.liPromo?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> DeletePromo(int id)
@@ -148,10 +151,42 @@ namespace euroma2.Controllers
             {
                 return NotFound();
             }
+            await DeleteInterestPromo(id);
+
             _dbContext.promotion.Remove(ss);
             await _dbContext.SaveChangesAsync();
             return NoContent();
         }
 
+
+        private async Task<IActionResult> DeleteInterestPromo(int id)
+        {
+            if (_dbContext.liPromo == null)
+            {
+                return NotFound();
+            }
+            // var ss = await _dbContext.liShop.;
+
+            var query = from st in _dbContext.liPromo
+                        where st.id_promo == id
+                        select st;
+
+            var student = query.ToList<LineaInterest_promo>();
+
+            if (student == null ||student.Count == 0)
+            {
+                return NotFound();
+            }
+
+            
+
+            foreach (var item in student)
+            {
+                _dbContext.liPromo.Remove(item);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

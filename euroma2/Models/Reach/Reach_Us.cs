@@ -12,7 +12,6 @@
         public int order { get; set; }
 
         public string icon { get; set; }
-        public Boolean borrado { get; set; }
 
     }
 }

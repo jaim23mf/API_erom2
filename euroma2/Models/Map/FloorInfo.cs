@@ -9,11 +9,6 @@ namespace euroma2.Models.Map
 
         public string name { get; set; }
 
-        public List<Floor_Shop> shopNodes { get; set; }
-
-        public List<Floor_Nav_Point> navPoints { get; set; }
-
-
     }
 
     public class Floor_Shop {

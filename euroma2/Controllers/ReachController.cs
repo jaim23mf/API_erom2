@@ -21,14 +21,14 @@ namespace euroma2.Controllers
         // GET: api/<InterestController>
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Interest_model>>> Get()
+        public async Task<ActionResult<IEnumerable<Reach_Us>>> Get()
         {
             if (_dbContext.reach == null)
             {
                 return NotFound();
             }
             var t = await _dbContext
-                .interests
+                .reach
                 .ToListAsync();
 
             if (t == null)

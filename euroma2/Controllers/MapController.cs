@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace euroma2.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class MapController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace euroma2.Controllers
         }
 
         // GET: api/<InterestController>
-        [HttpGet]
+        [HttpGet("Floor")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<FloorInfo>>> Get()
         {
@@ -40,7 +40,7 @@ namespace euroma2.Controllers
         }
 
         // GET api/<InterestController>/5
-        [HttpGet("{id}")]
+        [HttpGet("Floor/{id}")]
         [Authorize]
         public async Task<ActionResult<FloorInfo>> GetFloor(int id)
         {
@@ -61,7 +61,7 @@ namespace euroma2.Controllers
         }
 
         // POST api/<InterestController>
-        [HttpPost]
+        [HttpPost("Floor")]
         [Authorize]
         public async Task<ActionResult<FloorInfo>> Post(FloorInfo serv)
         {
@@ -72,7 +72,7 @@ namespace euroma2.Controllers
         }
 
         // PUT api/<InterestController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Floor/{id}")]
         [Authorize]
         public async Task<IActionResult> PutFloor(int id, FloorInfo serv)
         {
@@ -107,7 +107,7 @@ namespace euroma2.Controllers
             return (_dbContext.floorInfo?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Floor/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteFloor(int id)
         {

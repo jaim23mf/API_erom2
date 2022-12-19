@@ -5,6 +5,7 @@ using euroma2.Models.Map;
 using euroma2.Models.Promo;
 using euroma2.Models.Reach;
 using euroma2.Models.Service;
+using euroma2.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
@@ -50,6 +51,7 @@ namespace euroma2.Models
         public DbSet<LineaInterest_event> liEvents { get; set; } = null!;
         public DbSet<oDay> oDay { get; set; } = null!;
         public DbSet<Date_Range> dRange { get; set; } = null!;
+        public DbSet<User> user { get; set; } = null!;
 
 
 

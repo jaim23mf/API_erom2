@@ -19,6 +19,7 @@ namespace euroma2.Auth
 
             [JsonPropertyName("refreshExpiration")]
             public int RefreshExpiration { get; set; }
-        
+
+
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using euroma2.Models.Map;
 using Microsoft.AspNetCore.Authorization;
+using euroma2.Services;
 
 namespace euroma2.Controllers
 {
@@ -123,6 +124,16 @@ namespace euroma2.Controllers
             _dbContext.floorInfo.Remove(ss);
             await _dbContext.SaveChangesAsync();
             return NoContent();
+        }
+
+
+        [HttpPost("Floor/GltfFile/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
+        {
+            UploadFiles uf = new UploadFiles();
+            uf = await uf.UploadFileToAsync("FloorGltf", file);
+            return Ok(uf);
         }
     }
 }

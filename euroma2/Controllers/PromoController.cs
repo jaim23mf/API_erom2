@@ -2,6 +2,7 @@
 using euroma2.Models.Events;
 using euroma2.Models.Interest;
 using euroma2.Models.Promo;
+using euroma2.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -187,6 +188,15 @@ namespace euroma2.Controllers
 
             await _dbContext.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpPost("ImgUpload/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
+        {
+            UploadFiles uf = new UploadFiles();
+            uf = await uf.UploadFileToAsync("PromoImg", file);
+            return Ok(uf);
         }
     }
 }

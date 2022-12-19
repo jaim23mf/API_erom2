@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using euroma2.Models.Reach;
 using Microsoft.AspNetCore.Authorization;
+using euroma2.Services;
 
 namespace euroma2.Controllers
 {
@@ -123,6 +124,16 @@ namespace euroma2.Controllers
             _dbContext.reach.Remove(ss);
             await _dbContext.SaveChangesAsync();
             return NoContent();
+        }
+
+
+        [HttpPost("ImgUpload/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
+        {
+            UploadFiles uf = new UploadFiles();
+            uf = await uf.UploadFileToAsync("ReachImg", file);
+            return Ok(uf);
         }
     }
 }

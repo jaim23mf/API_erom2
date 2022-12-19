@@ -1,6 +1,7 @@
 ﻿using euroma2.Models;
 using euroma2.Models.Events;
 using euroma2.Models.Hours;
+using euroma2.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,27 @@ namespace euroma2.Controllers
         }
 
         #region SHOP
+
+
+
+        [HttpPost("ImgUpload/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
+        {
+            UploadFiles uf = new UploadFiles();
+            uf = await uf.UploadFileToAsync("StoreImg", file);
+            return Ok(uf);
+        }
+
+
+        [HttpPost("LogoUpload/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UploadToFileSystemlogo(IFormFile file, int id)
+        {
+            UploadFiles uf = new UploadFiles();
+            uf = await uf.UploadFileToAsync("LogoImg", file);
+            return Ok(uf);
+        }
 
         [HttpGet]
         [Authorize]

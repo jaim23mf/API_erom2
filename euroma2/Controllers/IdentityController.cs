@@ -140,7 +140,15 @@ namespace euroma2.Controllers
             r.Token = refreshToken;
             r.Expires = DateTime.Parse(refreshTokenE);
 
-            if (r.Expires < DateTime.Now) return BadRequest();
+            if (r.Expires < DateTime.Now) {
+                return Ok(new LoginResult
+                {
+                    UserName = null,
+                    Token = null,
+                    RefreshToken = null,
+                    Logged = false
+                });
+            }
             var claims = new[]
            {
                 new Claim(ClaimTypes.Name,u.userName)

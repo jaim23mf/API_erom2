@@ -42,7 +42,7 @@ namespace euroma2
             app.MapControllers();
 
             app.Run();*/
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run() ;
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

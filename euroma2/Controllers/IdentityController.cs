@@ -3,6 +3,7 @@ using euroma2.Models;
 using euroma2.Models.Users;
 using euroma2.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +16,7 @@ using System.Text.Json.Serialization;
 
 namespace euroma2.Controllers
 {
+    [EnableCors("corsapp")]
     [Route("identity")]
     [Authorize]
     public class IdentityController : ControllerBase
@@ -82,6 +84,7 @@ namespace euroma2.Controllers
             var token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
             _logger.LogInformation($"User [{request.UserName}] logged in the system.");
 
+
             return Ok(new LoginResult
             {
                 UserName = request.UserName,
@@ -95,16 +98,43 @@ namespace euroma2.Controllers
 
          [AllowAnonymous]
          [HttpPost("refresh-token")]
-         public IActionResult RefreshToken()
+         public IActionResult RefreshToken([FromBody] TokenReq tq)
          {
-           var refreshToken = Request.Cookies["tokenR"];
-           var refreshTokenE = Request.Cookies["tokenRE"];
+            var refreshToken = tq.refreshToken;
+            var refreshTokenE = tq.refreshTokenE;
 
-            if (refreshToken == null) return BadRequest();
-            if (refreshTokenE == null) return BadRequest();
+            if (refreshToken == null) {
+
+                return Ok(new LoginResult
+                {
+                    UserName = null,
+                    Token = null,
+                    RefreshToken = null,
+                    Logged = false
+                });
+            }
+            if (refreshTokenE == null) {
+                return Ok(new LoginResult
+                {
+                    UserName = null,
+                    Token = null,
+                    RefreshToken = null,
+                    Logged = false
+                });
+            }
 
             User u = new User();
             u = GetUserByToken(refreshToken).Result;
+
+            if (u == null) {
+                return Ok(new LoginResult
+                {
+                    UserName = null,
+                    Token = null,
+                    RefreshToken = null,
+                    Logged = false
+                });
+            }
 
             RefreshToken r = new RefreshToken();
             r.Token = refreshToken;
@@ -184,6 +214,13 @@ namespace euroma2.Controllers
             [Required]
             [JsonPropertyName("password")]
             public string Password { get; set; }
+
+        }
+
+        public class TokenReq
+        { 
+            public string refreshToken { get; set; }
+            public string refreshTokenE { get; set; }
 
         }
 

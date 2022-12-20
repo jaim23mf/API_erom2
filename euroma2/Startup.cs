@@ -2,8 +2,10 @@
 using euroma2.Models;
 using euroma2.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
@@ -20,6 +22,7 @@ namespace euroma2
         }
 
         public IConfiguration Configuration { get; }
+        private string MyAllowSpecificOrigins = "myCors";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -109,8 +112,15 @@ namespace euroma2
             services.AddScoped<IUserService, UserService>();
 
 
-            services.AddCors(p =>p.AddPolicy("corsapp", builder =>{
-                builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+            var hostCors = Configuration.GetValue<string>("Cors");
+            var origins = hostCors.Split(";");
+            Console.WriteLine(origins);
+
+            services.AddCors(p => p.AddPolicy("corsapp", builder =>
+            {
+                builder.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+                //builder.WithOrigins("http://localhost:4200", "https://localhost:7260").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+
             }));
 
         }
@@ -137,11 +147,13 @@ namespace euroma2
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseCors("corsapp");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
         }
     }
 }

@@ -39,6 +39,34 @@ namespace euroma2.Controllers
 
         }
 
+
+        [HttpGet("PromoView")]
+        public async Task<ActionResult<IEnumerable<PromoView>>> GetPromosMobile()
+        {
+            if (_dbContext.promotion == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .promotion
+                .Include(a => a.interestIds)
+                .Include(a => a.dateRange)
+                .ToListAsync();
+
+            List<PromoView> sc = new List<PromoView>();
+
+            foreach (Promotion s in t)
+            {
+                PromoView res = new PromoView(s);
+
+                res.interestIds = GetInterest(s.interestIds);
+                sc.Add(res);
+            }
+
+            return sc;
+
+        }
+
         private  List<int> GetInterest(List<LineaInterest_promo> interest)
         {
 

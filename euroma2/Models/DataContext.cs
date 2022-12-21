@@ -52,10 +52,11 @@ namespace euroma2.Models
         public DbSet<oDay> oDay { get; set; } = null!;
         public DbSet<Date_Range> dRange { get; set; } = null!;
         public DbSet<User> user { get; set; } = null!;
+        public DbSet<Map_Map> map { get; set; } = null!;
 
 
 
-       
+
 
     }
 }

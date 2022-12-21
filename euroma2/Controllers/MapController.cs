@@ -19,6 +19,8 @@ namespace euroma2.Controllers
             _dbContext = dbContext;
         }
 
+        #region CMS
+
         // GET: api/<InterestController>
         [HttpGet("Floor")]
         public async Task<ActionResult<IEnumerable<FloorInfo>>> Get()
@@ -133,5 +135,29 @@ namespace euroma2.Controllers
             uf = await uf.UploadFileToAsync("FloorGltf", file);
             return Ok(uf);
         }
+
+        #endregion
+
+        #region MOBILE
+        [HttpGet]
+        public async Task<ActionResult<Map_Map>> GetMap()
+        {
+            if (_dbContext.map == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .map
+                .FirstAsync();
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            return t;
+        }
+
+        #endregion
     }
 }

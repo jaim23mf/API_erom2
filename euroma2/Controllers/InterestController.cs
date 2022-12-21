@@ -22,7 +22,6 @@ namespace euroma2.Controllers
 
         // GET: api/<InterestController>
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<Interest_model>>> Get()
         {
             if (_dbContext.interests == null)
@@ -43,7 +42,6 @@ namespace euroma2.Controllers
 
         // GET api/<InterestController>/5
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<Interest_model>> GetInterest(int id)
         {
             if (_dbContext.interests == null)

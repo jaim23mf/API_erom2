@@ -20,7 +20,6 @@ namespace euroma2.Controllers
 
         // GET: api/<InterestController>
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<Opening>> Get()
         {
             if (_dbContext.opening_hours == null)
@@ -69,7 +68,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet("General")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<General>>> GetGeneral()
         {
             if (_dbContext.opening_general == null)
@@ -93,7 +91,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet("Exceptions")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<Exception_Rules>>> GetException()
         {
             if (_dbContext.opening_exceptions == null)
@@ -144,7 +141,6 @@ namespace euroma2.Controllers
         //GET BY ID
 
         [HttpGet("General/{id}")]
-        [Authorize]
         public async Task<ActionResult<General>> GetGeneralId(int id)
         {
             if (_dbContext.opening_general == null)
@@ -169,7 +165,6 @@ namespace euroma2.Controllers
 
 
         [HttpGet("Exception/{id}")]
-        [Authorize]
         public async Task<ActionResult<Exception_Rules>> GetExceptionId(int id)
         {
             if (_dbContext.opening_exceptions == null)

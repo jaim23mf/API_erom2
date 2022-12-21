@@ -20,7 +20,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<EventView>>> GetEvents()
         {
             if (_dbContext.events == null)
@@ -72,7 +71,6 @@ namespace euroma2.Controllers
 
 
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<EventView>> GetEvents(int id)
         {
             if (_dbContext.events == null)

@@ -22,7 +22,6 @@ namespace euroma2.Controllers
 
         // GET: api/<InterestController>
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<Service_model>>> Get()
         {
             if (_dbContext.service == null)
@@ -43,7 +42,6 @@ namespace euroma2.Controllers
 
         // GET api/<InterestController>/5
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<Service_model>> GetService(int id)
         {
             if (_dbContext.service == null)

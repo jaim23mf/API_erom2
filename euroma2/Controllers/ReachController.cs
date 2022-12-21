@@ -21,7 +21,6 @@ namespace euroma2.Controllers
 
         // GET: api/<InterestController>
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<Reach_Us>>> Get()
         {
             if (_dbContext.reach == null)
@@ -42,7 +41,6 @@ namespace euroma2.Controllers
 
         // GET api/<InterestController>/5
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<Reach_Us>> GetReach(int id)
         {
             if (_dbContext.interests == null)

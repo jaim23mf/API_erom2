@@ -21,7 +21,6 @@ namespace euroma2.Controllers
 
         // GET: api/<InterestController>
         [HttpGet("Floor")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<FloorInfo>>> Get()
         {
             if (_dbContext.floorInfo == null)
@@ -42,7 +41,6 @@ namespace euroma2.Controllers
 
         // GET api/<InterestController>/5
         [HttpGet("Floor/{id}")]
-        [Authorize]
         public async Task<ActionResult<FloorInfo>> GetFloor(int id)
         {
             if (_dbContext.floorInfo == null)

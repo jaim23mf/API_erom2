@@ -24,7 +24,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<Promotion>>> GetPromos()
         {
             if (_dbContext.promotion == null)
@@ -65,7 +64,6 @@ namespace euroma2.Controllers
 
 
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<PromoView>> GetPromo(int id)
         {
             if (_dbContext.promotion == null)

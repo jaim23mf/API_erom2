@@ -45,7 +45,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<Shop>>> GetShops() {
             if (_dbContext.shop == null) {
                 return NotFound();
@@ -61,7 +60,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet ("ShopView")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<ShopView>>> GetShopsView()
         {
             if (_dbContext.shop == null)
@@ -89,8 +87,7 @@ namespace euroma2.Controllers
 
         }
 
-        [HttpGet("{id}")]
-        [Authorize]
+        [HttpGet("ShopView/{id}")]
         public async Task<ActionResult<ShopView>> GetShop(int id)
         {
             if (_dbContext.shop == null)
@@ -115,7 +112,6 @@ namespace euroma2.Controllers
 
 
         [HttpGet("ShopInfo/{id}")]
-        [Authorize]
         public async Task<ActionResult<ShopInfo>> GetShopInfo(int id)
         {
             if (_dbContext.shop == null)
@@ -410,7 +406,6 @@ namespace euroma2.Controllers
 
 
         [HttpGet("Category/{id}")]
-        [Authorize]
         public async Task<ActionResult<ShopCategory>> GetCategory(int id)
         {
             if (_dbContext.shopCategory == null)
@@ -428,7 +423,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet("Category")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<ShopCategory>>> GetCategory()
         {
             if (_dbContext.shopCategory == null)
@@ -509,7 +503,6 @@ namespace euroma2.Controllers
 
 
         [HttpGet("SubCategory/{id}")]
-        [Authorize]
         public async Task<ActionResult<ShopSubCategory>> GetSubCategory(int id)
         {
             if (_dbContext.shopSubCategory == null)
@@ -527,7 +520,6 @@ namespace euroma2.Controllers
         }
 
         [HttpGet("SubCategory")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<ShopSubCategory>>> GetSubCategory()
         {
             if (_dbContext.shopSubCategory == null)

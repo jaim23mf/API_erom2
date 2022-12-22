@@ -72,7 +72,6 @@ namespace euroma2.Controllers
             }
             _dbContext.floorInfo.Add(serv);
             await _dbContext.SaveChangesAsync();
-            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
             return CreatedAtAction(nameof(GetFloor), new { id = serv.id }, serv);
         }
 
@@ -184,6 +183,8 @@ namespace euroma2.Controllers
             var t = await _dbContext
                 .map
                 .Include(a => a.floors)
+                .Include(a => a.shops)
+                .Include(a => a.completeGraph)
                 .FirstAsync();
 
             if (t == null)
@@ -295,14 +296,17 @@ namespace euroma2.Controllers
         #endregion
 
         #region Map_Shop
-        /*
+        
         [HttpPost("MapShop")]
         [Authorize]
         public async Task<ActionResult<Map_Shop>> PostMapShop(Map_Shop s)
         {
+         Map_Map mp = await GetMapPriv();
+            if (mp!= null) { 
+                mp.shops.Add(s);
+            }
             _dbContext.map_shop.Add(s);
             await _dbContext.SaveChangesAsync();
-            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
             return CreatedAtAction(nameof(GetMapShop), new { id = s.id }, s);
         }
 
@@ -377,14 +381,208 @@ namespace euroma2.Controllers
             _dbContext.map_shop.Remove(ss);
             await _dbContext.SaveChangesAsync();
             return Ok(new PutResult { result="Ok"});
-        }*/
+        }
 
         #endregion
 
         #region MAP GRAPH NODE
+        [HttpPost("MapNode")]
+        [Authorize]
+        public async Task<ActionResult<Map_Graph_Node>> PostMapNode(Map_Graph_Node s)
+        {
+            Map_Map mp = await GetMapPriv();
+            if (mp != null)
+            {
+                mp.completeGraph.Add(s);
+            }
+            _dbContext.map_graph_node.Add(s);
+            await _dbContext.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetMapNode), new { id = s.id }, s);
+        }
+
+
+        [HttpGet("MapNode/{id}")]
+        public async Task<ActionResult<Map_Graph_Node>> GetMapNode(int id)
+        {
+            if (_dbContext.map_graph_node == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .map_graph_node
+                .FirstOrDefaultAsync(p => p.id == id); ;
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            return t;
+        }
+
+        [HttpPut("MapNode/{id}")]
+        [Authorize]
+        public async Task<IActionResult> PutMapNode(int id, Map_Graph_Node s)
+        {
+            if (id != s.id)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Entry(s).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MapNodeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+            return Ok(new PutResult { result = "Ok" });
+        }
+
+        private bool MapNodeExists(long id)
+        {
+            return (_dbContext.map_graph_node?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpDelete("MapNode/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMapNode(int id)
+        {
+            if (_dbContext.map_graph_node == null)
+            {
+                return NotFound();
+            }
+            var ss = await _dbContext.map_graph_node.FindAsync(id);
+            if (ss == null)
+            {
+                return NotFound();
+            }
+            _dbContext.map_graph_node.Remove(ss);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new PutResult { result = "Ok" });
+        }
         #endregion
 
         #region Map Graph Node RELATIONS
+
+        [HttpPost("NodeRelation")]
+        [Authorize]
+        public async Task<ActionResult<Map_Graph_Node_Relations>> PostMapRelation(Map_Graph_Node_Relations s)
+        {
+            Map_Graph_Node mp = await GetMapRelationPriv(s.targetNavPointNodeName);
+            if (mp != null)
+            {
+                mp.relations.Add(s);
+            }
+            _dbContext.map_graph_node_relations.Add(s);
+            await _dbContext.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetMapRelation), new { id = s.id }, s);
+        }
+
+
+        private async Task<Map_Graph_Node> GetMapRelationPriv(string nodeName)
+        {
+            if (_dbContext.map == null)
+            {
+                return null;
+            }
+            var t = await _dbContext
+                .map_graph_node
+                .Include(a => a.relations).Where(a=>a.nodeName == nodeName)
+                .FirstAsync();
+
+            if (t == null)
+            {
+                return null;
+            }
+
+
+            return t;
+        }
+
+        [HttpGet("NodeRelation/{id}")]
+        public async Task<ActionResult<Map_Graph_Node_Relations>> GetMapRelation(int id)
+        {
+            if (_dbContext.map_graph_node_relations == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .map_graph_node_relations
+                .FirstOrDefaultAsync(p => p.id == id); ;
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            return t;
+        }
+
+        [HttpPut("NodeRelation/{id}")]
+        [Authorize]
+        public async Task<IActionResult> PutMapRelation(int id, Map_Graph_Node_Relations s)
+        {
+            if (id != s.id)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Entry(s).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MapRelationExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+            return Ok(new PutResult { result = "Ok" });
+        }
+
+        private bool MapRelationExists(long id)
+        {
+            return (_dbContext.map_graph_node_relations?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpDelete("NodeRelation/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMapRelation(int id)
+        {
+            if (_dbContext.map_graph_node_relations == null)
+            {
+                return NotFound();
+            }
+            var ss = await _dbContext.map_graph_node_relations.FindAsync(id);
+            if (ss == null)
+            {
+                return NotFound();
+            }
+            _dbContext.map_graph_node_relations.Remove(ss);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new PutResult { result = "Ok" });
+        }
+
         #endregion
 
         #endregion

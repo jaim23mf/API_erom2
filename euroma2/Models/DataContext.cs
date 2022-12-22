@@ -54,6 +54,8 @@ namespace euroma2.Models
         public DbSet<User> user { get; set; } = null!;
         public DbSet<Map_Map> map { get; set; } = null!;
         public DbSet<Map_Shop> map_shop { get; set; } = null!;
+        public DbSet<Map_Graph_Node> map_graph_node { get; set; } = null!;
+        public DbSet<Map_Graph_Node_Relations> map_graph_node_relations { get; set; } = null!;
 
 
 

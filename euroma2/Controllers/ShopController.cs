@@ -273,7 +273,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -307,7 +307,7 @@ namespace euroma2.Controllers
 
             _dbContext.shop.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -337,7 +337,7 @@ namespace euroma2.Controllers
             }
 
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private async Task<IActionResult> DeleteOpeningShop(int id)
@@ -366,7 +366,7 @@ namespace euroma2.Controllers
             }
 
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private async Task<IActionResult> PostInterest(Shop shop)
@@ -377,7 +377,7 @@ namespace euroma2.Controllers
             }
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private async Task<IActionResult> PostOpening(Shop shop)
@@ -388,7 +388,7 @@ namespace euroma2.Controllers
             }
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         #endregion
@@ -450,7 +450,7 @@ namespace euroma2.Controllers
             }
             _dbContext.shopCategory.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -481,7 +481,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool CategoryExists(long id)
@@ -546,7 +546,7 @@ namespace euroma2.Controllers
             }
             _dbContext.shopSubCategory.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -577,7 +577,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool SubCategoryExists(long id)

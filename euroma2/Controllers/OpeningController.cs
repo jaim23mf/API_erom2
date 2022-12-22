@@ -228,7 +228,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool GeneralExists(long id)
@@ -269,7 +269,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool ExExists(long id)
@@ -295,7 +295,7 @@ namespace euroma2.Controllers
             }
             _dbContext.opening_exceptions.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         // GET api/<InterestController>/5
@@ -360,7 +360,7 @@ namespace euroma2.Controllers
                  }
 
              }
-             return NoContent();
+            return Ok(new PutResult { result="Ok"});
          }
 
          private bool OpeningExists(long id)
@@ -383,7 +383,7 @@ namespace euroma2.Controllers
              }
              _dbContext.opening_hours.Remove(ss);
              await _dbContext.SaveChangesAsync();
-             return NoContent();
+            return Ok(new PutResult { result="Ok"});
          }*/
     }
 }

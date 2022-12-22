@@ -98,7 +98,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool ReachExists(long id)
@@ -121,7 +121,7 @@ namespace euroma2.Controllers
             }
             _dbContext.reach.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 

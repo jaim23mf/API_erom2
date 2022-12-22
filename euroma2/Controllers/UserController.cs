@@ -76,7 +76,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -108,7 +108,7 @@ namespace euroma2.Controllers
             {     
                     return NotFound();
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool UserExists(long id)

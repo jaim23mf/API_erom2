@@ -7,7 +7,20 @@
 
         public List<Map_Graph_Node> completeGraph { get; set; }
 
-        public List<Map_Graph_NodeA> accessibilityGraph { get; set; }
+        //public List<Map_Graph_Node> accessibilityGraph { get; set; }
+
+        public List<Map_Shop> shops { get; set; }
+
+    }
+
+    public class Map_View
+    {
+        public int id { get; set; }
+        public List<FloorInfo> floors { get; set; }
+
+        public List<Map_Graph_Node> completeGraph { get; set; }
+
+        public List<Map_Graph_Node> accessibilityGraph { get; set; }
 
         public List<Map_Shop> shops { get; set; }
 
@@ -19,16 +32,8 @@
 
         public List<Map_Graph_Node_Relations> relations {get;set;}
         public string attachedShopNodeName { get; set; }
-    }
 
-
-    public class Map_Graph_NodeA
-    {
-        public int id { get; set; }
-        public string nodeName { get; set; }
-
-        public List<Map_Graph_Node_Relations> relations { get; set; }
-        public string attachedShopNodeName { get; set; }
+        public int accessibility { get; set; }
     }
 
     public class Map_Graph_Node_Relations {
@@ -43,7 +48,6 @@
         public int id { get; set; }
         public string nodeName { get; set; }
         public int shopId { get; set; }
-
         public string attachedNavPoint { get; set; }
 
 

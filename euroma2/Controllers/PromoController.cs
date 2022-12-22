@@ -152,7 +152,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool PromoExists(long id)
@@ -182,7 +182,7 @@ namespace euroma2.Controllers
 
             _dbContext.promotion.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -213,7 +213,7 @@ namespace euroma2.Controllers
             }
 
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         [HttpPost("ImgUpload/{id}")]

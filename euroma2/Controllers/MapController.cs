@@ -66,6 +66,10 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<ActionResult<FloorInfo>> Post(FloorInfo serv)
         {
+            Map_Map mp = await GetMapPriv();
+            if (mp!= null) { 
+                mp.floors.Add(serv);
+            }
             _dbContext.floorInfo.Add(serv);
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
@@ -100,7 +104,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result="Ok"});
         }
 
         private bool FloorExists(long id)
@@ -123,7 +127,7 @@ namespace euroma2.Controllers
             }
             _dbContext.floorInfo.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 
@@ -139,8 +143,11 @@ namespace euroma2.Controllers
         #endregion
 
         #region MOBILE
+
+        #region MAP
+
         [HttpGet]
-        public async Task<ActionResult<Map_Map>> GetMap()
+        public async Task<ActionResult<Map_View>> GetMap()
         {
             if (_dbContext.map == null)
             {
@@ -148,7 +155,72 @@ namespace euroma2.Controllers
             }
             var t = await _dbContext
                 .map
+                .Include(a => a.floors)
+                .Include(a => a.shops)
+                .Include(a => a.completeGraph).ThenInclude(b => b.relations)
                 .FirstAsync();
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            Map_View mv = new Map_View();
+            mv.floors = t.floors;
+            mv.shops = t.shops;
+            mv.completeGraph = t.completeGraph;
+
+            mv.accessibilityGraph = GetCompletGrap(t.completeGraph);
+
+            return mv;
+        }
+
+        private async Task<Map_Map> GetMapPriv()
+        {
+            if (_dbContext.map == null)
+            {
+                return null;
+            }
+            var t = await _dbContext
+                .map
+                .Include(a => a.floors)
+                .FirstAsync();
+
+            if (t == null)
+            {
+                return null;
+            }
+
+
+            return t;
+        }
+
+        private List<Map_Graph_Node> GetCompletGrap(List<Map_Graph_Node> lt) { 
+            List<Map_Graph_Node> result = new List<Map_Graph_Node>();
+            if (lt != null)
+            {
+                foreach (Map_Graph_Node l in lt)
+                {
+                    if (l.accessibility == 1)
+                    {
+                        result.Add(l);
+                    }
+
+                }
+            }
+            return result;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Map_Map>> GetMapId(int id)
+        {
+            if (_dbContext.map == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .map
+                .FirstOrDefaultAsync(p => p.id == id); ;
 
             if (t == null)
             {
@@ -157,6 +229,163 @@ namespace euroma2.Controllers
 
             return t;
         }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<Map_Map>> PostMap(Map_Map m)
+        {
+            _dbContext.map.Add(m);
+            await _dbContext.SaveChangesAsync();
+            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
+            return CreatedAtAction(nameof(GetMapId), new { id = m.id }, m);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> PutMap(int id, Map_Map s)
+        {
+            if (id != s.id)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Entry(s).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MapExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+            return Ok(new PutResult { result = "Ok" });
+        }
+
+        private bool MapExists(long id)
+        {
+            return (_dbContext.map?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMap(int id)
+        {
+            if (_dbContext.map == null)
+            {
+                return NotFound();
+            }
+            var ss = await _dbContext.map.FindAsync(id);
+            if (ss == null)
+            {
+                return NotFound();
+            }
+            _dbContext.map.Remove(ss);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new PutResult { result = "Ok" });
+        }
+        #endregion
+
+        #region Map_Shop
+        /*
+        [HttpPost("MapShop")]
+        [Authorize]
+        public async Task<ActionResult<Map_Shop>> PostMapShop(Map_Shop s)
+        {
+            _dbContext.map_shop.Add(s);
+            await _dbContext.SaveChangesAsync();
+            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
+            return CreatedAtAction(nameof(GetMapShop), new { id = s.id }, s);
+        }
+
+
+        [HttpGet("MapShop/{id}")]
+        public async Task<ActionResult<Map_Shop>> GetMapShop(int id)
+        {
+            if (_dbContext.map_shop == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .map_shop
+                .FirstOrDefaultAsync(p => p.id == id); ;
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            return t;
+        }
+
+        [HttpPut("MapShop/{id}")]
+        [Authorize]
+        public async Task<IActionResult> PutMapShop(int id, Map_Shop s)
+        {
+            if (id != s.id)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Entry(s).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MapShopExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+            return Ok(new PutResult { result="Ok"});
+        }
+
+        private bool MapShopExists(long id)
+        {
+            return (_dbContext.map_shop?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpDelete("MapShop/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMapShop(int id)
+        {
+            if (_dbContext.map_shop == null)
+            {
+                return NotFound();
+            }
+            var ss = await _dbContext.map_shop.FindAsync(id);
+            if (ss == null)
+            {
+                return NotFound();
+            }
+            _dbContext.map_shop.Remove(ss);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new PutResult { result="Ok"});
+        }*/
+
+        #endregion
+
+        #region MAP GRAPH NODE
+        #endregion
+
+        #region Map Graph Node RELATIONS
+        #endregion
 
         #endregion
     }

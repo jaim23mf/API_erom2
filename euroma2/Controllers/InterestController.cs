@@ -99,7 +99,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool InterestExists(long id)
@@ -122,7 +122,7 @@ namespace euroma2.Controllers
             }
             _dbContext.interests.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
     }
 }

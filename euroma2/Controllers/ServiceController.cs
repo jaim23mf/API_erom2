@@ -99,7 +99,7 @@ namespace euroma2.Controllers
                 }
 
             }
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
         private bool ServiceExists(long id)
@@ -122,7 +122,7 @@ namespace euroma2.Controllers
             }
             _dbContext.service.Remove(ss);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok(new PutResult { result = "Ok" });
         }
 
 

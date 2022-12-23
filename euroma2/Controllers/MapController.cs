@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using euroma2.Models.Map;
 using Microsoft.AspNetCore.Authorization;
 using euroma2.Services;
+using System.Linq.Expressions;
 
 namespace euroma2.Controllers
 {
@@ -581,6 +582,149 @@ namespace euroma2.Controllers
             _dbContext.map_graph_node_relations.Remove(ss);
             await _dbContext.SaveChangesAsync();
             return Ok(new PutResult { result = "Ok" });
+        }
+
+        #endregion
+
+
+        #region BABYLON
+
+        [HttpGet("FloorView/{id}")]
+        public async Task<ActionResult<FloorInfoView>> GetFloorView(int id)
+        {
+            if (_dbContext.map == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .map
+                .Include(a => a.shops)
+                .Include(a => a.completeGraph).ThenInclude(b => b.relations)
+                .FirstAsync();
+
+            var x = await _dbContext
+              .floorInfo
+              .FirstOrDefaultAsync(p => p.id == id);
+
+            if (x == null) {
+                return NotFound();
+            }
+
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            FloorInfoView fw = new FloorInfoView();
+            fw.id = x.id;
+            fw.name= x.name;
+            fw.modelUrl= x.modelUrl;
+            fw.navPoints = new List<Map_Graph_Node>();
+            fw.shopsNodes = new List<ShopNode>();
+
+            if (t.completeGraph.Count > 0) {
+                foreach (Map_Graph_Node e in t.completeGraph) {
+                    if (e.floorId == x.id) {
+                        fw.navPoints.Add(e);
+                    }
+                }
+            }
+
+
+            if (t.shops.Count > 0)
+            {
+                foreach (Map_Shop e in t.shops)
+                {
+                    if (e.floorId == x.id)
+                    {
+                        ShopNode sn = new ShopNode();
+                        sn.nodeName = e.nodeName;
+                        sn.attachedShop = new ShopInfo();
+                        sn.attachedShop.id = e.shopId;
+
+                        var y = await _dbContext.shop.FirstOrDefaultAsync(p => p.id == e.shopId);
+
+                        sn.attachedShop.title = y.title; 
+                        fw.shopsNodes.Add(sn);
+                    }
+                }
+            }
+
+            return fw;
+        }
+
+        [HttpGet("NavInfoPoint")]
+        public async Task<ActionResult<List<NavPointInfo>>> GetNavInfoPoint()
+        {
+
+            if (_dbContext.map == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .floorInfo
+                .ToListAsync();
+
+            var m = await _dbContext
+            .map
+            .Include(a => a.shops)
+            .Include(a => a.completeGraph).ThenInclude(b => b.relations)
+            .FirstAsync();
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            List<NavPointInfo> lnp = new List<NavPointInfo>();
+
+            foreach (FloorInfo e in t)
+            {
+                NavPointInfo fw = new NavPointInfo();
+                fw.id = e.id;
+                fw.name = e.name;
+                fw.navPoints = new List<string>();
+                if(m.completeGraph != null)
+                foreach (Map_Graph_Node mg in m.completeGraph) {
+                        if (mg.floorId == e.id) {
+                            fw.navPoints.Add(mg.nodeName);
+                        }    
+                }
+
+                lnp.Add(fw);
+            }
+
+
+            return lnp;
+        }
+
+
+        [HttpGet("ShopInfo")]
+        public async Task<ActionResult<List<ShopInfo>>> GetShopInfo()
+        {
+            if (_dbContext.shop == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .shop.Include(a => a.openingHours).ToListAsync();
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            List<ShopInfo> ls = new List<ShopInfo>();
+
+            foreach (Shop s in t) {
+                ShopInfo si = new ShopInfo();
+                si.id = s.id;
+                si.title = s.title;
+                ls.Add(si);
+            }
+
+            return ls;
         }
 
         #endregion

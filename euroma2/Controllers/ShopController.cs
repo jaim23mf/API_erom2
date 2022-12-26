@@ -240,6 +240,11 @@ namespace euroma2.Controllers
 
             _dbContext.Entry(shop).State = EntityState.Modified;
 
+            foreach (oDay li in shop.openingHours)
+            {
+                _dbContext.Entry(li).State = EntityState.Modified;
+            }
+
 
             await DeleteInterestShop(shop.id);
 
@@ -249,11 +254,11 @@ namespace euroma2.Controllers
                     _dbContext.liShop.Add(item)
             );
 
-            await DeleteOpeningShop(shop.id);
+            /*await DeleteOpeningShop(shop.id);
             foreach (oDay li in shop.openingHours)
             {
                     _dbContext.oDay.Add(li);      
-            }
+            }*/
 
             //await DeleteInterestShop(shop.id);
             //await PostInterest(shop);
@@ -327,7 +332,8 @@ namespace euroma2.Controllers
 
             if (student == null || student.Count == 0)
             {
-                return NotFound();
+                //return NotFound();
+                return Ok(new PutResult { result = "Ok" });
             }
 
 
@@ -348,22 +354,24 @@ namespace euroma2.Controllers
             }
             // var ss = await _dbContext.liShop.;
 
-            var query = from st in _dbContext.oDay
+            /*var query = from st in _dbContext.oDay
                         where st.id_shop == id
-                        select st;
+                        select st;*/
 
-            var student = query.ToList<oDay>();
+            Shop t = await _dbContext.shop.Include(st => st.openingHours).Where(s => s.id == id).FirstAsync();
 
-            if (student == null || student.Count == 0)
+            //var student = query.ToList<oDay>();
+
+            if (t == null || t.openingHours.Count == 0)
             {
                 return NotFound();
             }
 
 
-            foreach (var item in student)
-            {
-                _dbContext.oDay.Remove(item);
-            }
+            //foreach (var item in t.openingHours)
+           // {
+                _dbContext.oDay.RemoveRange(t.openingHours);
+            //}
 
             await _dbContext.SaveChangesAsync();
             return Ok(new PutResult { result = "Ok" });

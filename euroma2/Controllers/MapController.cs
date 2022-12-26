@@ -596,11 +596,8 @@ namespace euroma2.Controllers
             {
                 return NotFound();
             }
-            var t = await _dbContext
-                .map
-                .Include(a => a.shops)
-                .Include(a => a.completeGraph).ThenInclude(b => b.relations)
-                .FirstAsync();
+            var t = await _dbContext.map_graph_node.Where(s => s.floorId == id).ToListAsync();
+            var s = await _dbContext.map_shop.Where(s => s.floorId == id).ToListAsync();
 
             var x = await _dbContext
               .floorInfo
@@ -623,8 +620,8 @@ namespace euroma2.Controllers
             fw.navPoints = new List<Map_Graph_Node>();
             fw.shopsNodes = new List<ShopNode>();
 
-            if (t.completeGraph.Count > 0) {
-                foreach (Map_Graph_Node e in t.completeGraph) {
+            if (t.Count > 0) {
+                foreach (Map_Graph_Node e in t) {
                     if (e.floorId == x.id) {
                         fw.navPoints.Add(e);
                     }
@@ -632,9 +629,9 @@ namespace euroma2.Controllers
             }
 
 
-            if (t.shops.Count > 0)
+            if (s.Count > 0)
             {
-                foreach (Map_Shop e in t.shops)
+                foreach (Map_Shop e in s)
                 {
                     if (e.floorId == x.id)
                     {
@@ -726,6 +723,39 @@ namespace euroma2.Controllers
 
             return ls;
         }
+
+
+        [HttpPost("SaveFloor")]
+        [Authorize]
+        public async Task<IActionResult> SaveFloor(int floorid, FloorSaveData data) {
+
+            List<Map_Shop> t = await _dbContext.map_shop.Where(a=>a.floorId == floorid).ToListAsync();
+
+            if (t != null) {  _dbContext.map_shop.RemoveRange(t); }
+
+            List<Map_Graph_Node> n = await _dbContext.map_graph_node.Where(a => a.floorId == floorid).ToListAsync();
+
+            if (n != null) { _dbContext.map_graph_node.RemoveRange(n); }
+
+
+            foreach (ShopNode s in data.shopsNodes) { 
+                Map_Shop ms = new Map_Shop();
+                ms.floorId = floorid;
+                ms.shopId = s.attachedShop.id;
+                ms.nodeName = s.nodeName;
+                ms.attachedNavPoint = s.attachedShop.title;
+                _dbContext.map_shop.Add(ms);
+            }
+
+  
+            _dbContext.map_graph_node.AddRange(data.navPoints);
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new PutResult { result = "Ok" });
+
+        }
+
 
         #endregion
 

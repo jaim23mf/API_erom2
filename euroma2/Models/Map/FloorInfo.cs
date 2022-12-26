@@ -10,6 +10,7 @@ namespace euroma2.Models.Map
         public int id { get; set; }
         public string modelUrl { get; set; }
         public string name { get; set; }
+        public int floor { get; set; }
 
     }
 
@@ -32,6 +33,12 @@ namespace euroma2.Models.Map
 
         public string name { get; set; }
         public List<string> navPoints { get; set; }
+    }
+
+    public class FloorSaveData
+    {
+        public List<Map_Graph_Node> navPoints { get; set; }
+        public List<ShopNode> shopsNodes { get; set; }
     }
 
 }

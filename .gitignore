@@ -11,3 +11,13 @@ euroma2/obj/staticwebassets.pack.sentinel
 euroma2/obj/Debug/net6.0/euroma2.csproj.CoreCompileInputs.cache
 euroma2/bin/Debug/net6.0/euroma2.pdb
 euroma2/bin/Debug/net6.0/euroma2.dll
+euroma2/obj/Debug/net6.0/apphost.exe
+*.exe
+*.cache
+euroma2/obj/Debug/net6.0/apphost.exe
+*.cache
+*.props
+*.cache
+*.cache
+euroma2/FloorGltf/PTA00.gltf
+euroma2/obj/Debug/net6.0/apphost.exe

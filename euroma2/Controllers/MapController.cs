@@ -137,6 +137,7 @@ namespace euroma2.Controllers
 
 
         [HttpPost("Floor/GltfFile/{id}")]
+        [HttpPost("Floor/BinFile/{id}")]
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {

@@ -9,6 +9,7 @@ namespace euroma2.Models.Map
     {
         public int id { get; set; }
         public string modelUrl { get; set; }
+        public string modelBinUrl { get; set; }
         public string name { get; set; }
         public int floor { get; set; }
 

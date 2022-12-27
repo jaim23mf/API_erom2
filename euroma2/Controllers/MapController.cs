@@ -7,6 +7,8 @@ using euroma2.Models.Map;
 using Microsoft.AspNetCore.Authorization;
 using euroma2.Services;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
+using System.IO;
 
 namespace euroma2.Controllers
 {
@@ -15,9 +17,12 @@ namespace euroma2.Controllers
     public class MapController : ControllerBase
     {
         private readonly DataContext _dbContext;
-        public MapController(DataContext dbContext)
+        private readonly PtaInfo _options;
+
+        public MapController(DataContext dbContext, IOptions<PtaInfo> options)
         {
             _dbContext = dbContext;
+            _options = options.Value;
         }
 
         #region CMS
@@ -135,8 +140,8 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
-            UploadFiles uf = new UploadFiles();
-            uf = await uf.UploadFileToAsync("FloorGltf", file);
+            UploadFiles uf = new UploadFiles(this._options);
+            uf = await uf.UploadFileToAsync(Consts.FloorGltf, file);
             return Ok(uf);
         }
 

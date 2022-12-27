@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,8 +19,10 @@ namespace euroma2.Controllers
     public class ShopController : ControllerBase
     {
         private readonly DataContext _dbContext;
-        public ShopController(DataContext dbContext) {
+        private readonly PtaInfo _options;
+        public ShopController(DataContext dbContext, IOptions<PtaInfo> options) {
             _dbContext = dbContext;
+            this._options = options.Value;
         }
 
         #region SHOP
@@ -30,8 +33,8 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
-            UploadFiles uf = new UploadFiles();
-            uf = await uf.UploadFileToAsync("StoreImg", file);
+            UploadFiles uf = new UploadFiles(this._options);
+            uf = await uf.UploadFileToAsync(Consts.StoreImg, file);
             return Ok(uf);
         }
 
@@ -40,8 +43,8 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> UploadToFileSystemlogo(IFormFile file, int id)
         {
-            UploadFiles uf = new UploadFiles();
-            uf = await uf.UploadFileToAsync("LogoImg", file);
+            UploadFiles uf = new UploadFiles(this._options);
+            uf = await uf.UploadFileToAsync(Consts.LogoImg, file);
             return Ok(uf);
         }
 
@@ -54,6 +57,7 @@ namespace euroma2.Controllers
                 .shop
                 .Include(a => a.openingHours)
                 .Include(a => a.interestIds)
+                .AsNoTracking()
                 .ToListAsync();
 
             return t;
@@ -81,6 +85,8 @@ namespace euroma2.Controllers
                 res.categoryId = await GetCategories(s.categoryId);
                 res.subcategoryId = await GetSubCategories(s.subcategoryId);
                 res.interestIds = GetInterest(s.interestIds);
+                //res.logo = $"{this._options.BaseFileUrl}/{Consts.LogoImg}/{Path.GetFileName(s.logo)}";
+                //res.photo = $"{this._options.BaseFileUrl}/{Consts.StoreImg}/{Path.GetFileName(s.photo)}";
                 sc.Add(res);
             }
 
@@ -105,7 +111,7 @@ namespace euroma2.Controllers
 
             ShopView res = new ShopView(t);
 
-            res.categoryId =  await GetCategories(t.categoryId);
+            res.categoryId = await GetCategories(t.categoryId);
             res.subcategoryId = await GetSubCategories(t.subcategoryId);
             res.interestIds = GetInterest(t.interestIds);
             return res;

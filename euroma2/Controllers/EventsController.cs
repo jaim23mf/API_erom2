@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using euroma2.Services;
+using Microsoft.Extensions.Options;
 
 namespace euroma2.Controllers
 {
@@ -14,9 +15,12 @@ namespace euroma2.Controllers
     public class EventsController : ControllerBase
     {
         private readonly DataContext _dbContext;
-        public EventsController(DataContext dbContext)
+        private readonly PtaInfo _options;
+
+        public EventsController(DataContext dbContext, IOptions<PtaInfo> options)
         {
             _dbContext = dbContext;
+            this._options = options.Value;
         }
 
         [HttpGet]
@@ -206,7 +210,7 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
-            UploadFiles uf = new UploadFiles();
+            UploadFiles uf = new UploadFiles(this._options);
             uf = await uf.UploadFileToAsync("EventsImg", file);
             return Ok(uf);
         }

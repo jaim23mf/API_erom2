@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using euroma2.Models.Reach;
 using Microsoft.AspNetCore.Authorization;
 using euroma2.Services;
+using Microsoft.Extensions.Options;
 
 namespace euroma2.Controllers
 {
@@ -14,9 +15,11 @@ namespace euroma2.Controllers
     public class ReachController : ControllerBase
     {
         private readonly DataContext _dbContext;
-        public ReachController(DataContext dbContext)
+        private readonly PtaInfo _options;
+        public ReachController(DataContext dbContext, IOptions<PtaInfo> options)
         {
             _dbContext = dbContext;
+            _options = options.Value;
         }
 
         // GET: api/<InterestController>
@@ -129,8 +132,8 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
-            UploadFiles uf = new UploadFiles();
-            uf = await uf.UploadFileToAsync("ReachImg", file);
+            UploadFiles uf = new UploadFiles(this._options);
+            uf = await uf.UploadFileToAsync(Consts.ReachImg, file);
             return Ok(uf);
         }
     }

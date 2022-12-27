@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -16,11 +17,13 @@ namespace euroma2
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
+            this._environment = environment;
             Configuration = configuration;
         }
 
+        private readonly IWebHostEnvironment _environment;
         public IConfiguration Configuration { get; }
         private string MyAllowSpecificOrigins = "myCors";
 
@@ -122,7 +125,7 @@ namespace euroma2
                 //builder.WithOrigins("http://localhost:4200", "https://localhost:7260").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
 
             }));
-
+            services.Configure<PtaInfo>(this.Configuration.GetSection("PTAInfo"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -134,6 +137,30 @@ namespace euroma2
             }
             app.UseHsts();
             app.UseHttpsRedirection();
+
+
+            var folders = new[]
+            {
+                Consts.FloorGltf,
+                Consts.LogoImg,
+                Consts.PromoImg,
+                Consts.ReachImg,
+                Consts.ServiceImg,
+                Consts.StoreImg
+            };
+
+             foreach (var folder in folders)
+             {
+                var dirPath = Path.Combine(this._environment.ContentRootPath, folder);
+                if (!Directory.Exists(dirPath))
+                    Directory.CreateDirectory(dirPath);
+                var provider = new PhysicalFileProvider(dirPath);
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = provider,
+                    RequestPath = $"/{folder}"
+                });
+                }
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

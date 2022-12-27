@@ -18,9 +18,11 @@ namespace euroma2.Controllers
 
 
         private readonly DataContext _dbContext;
-        public PromoController(DataContext dbContext)
+        private readonly PtaInfo _options;
+        public PromoController(DataContext dbContext, PtaInfo options)
         {
             _dbContext = dbContext;
+            _options = options;
         }
 
         [HttpGet]
@@ -220,8 +222,8 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
-            UploadFiles uf = new UploadFiles();
-            uf = await uf.UploadFileToAsync("PromoImg", file);
+            UploadFiles uf = new UploadFiles(this._options);
+            uf = await uf.UploadFileToAsync(Consts.PromoImg, file);
             return Ok(uf);
         }
     }

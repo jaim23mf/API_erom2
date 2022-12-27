@@ -116,8 +116,8 @@ namespace euroma2.Models
     }
 
     public enum ShopType {
-        store=0, 
-        foodAndBeverage=1
+        foodAndBeverage=1,
+        store = 2
     }
 
     public enum DayName 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
@@ -442,6 +443,32 @@ namespace euroma2.Controllers
                 .ToListAsync();
         }
 
+
+        [HttpGet("CategoryM")]
+        public async Task<ActionResult<IEnumerable<ShopCategoryM>>> GetCategoryM()
+        {
+            if (_dbContext.shopCategory == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .shopCategory
+                .ToListAsync();
+
+            List<ShopCategoryM> lsc= new List<ShopCategoryM>();
+
+            for(int i = 0; i < t.Count; i++)
+            {
+                ShopCategoryM sc = new ShopCategoryM();
+                sc.id = t[i].id;
+                sc.title = t[i].title;
+                var st = (StoreType)t[i].shopType;
+                sc.shopType = st.ToString();
+                lsc.Add(sc);
+            }
+
+            return lsc;
+        }
 
         [HttpDelete("Category/{id}")]
         [Authorize]

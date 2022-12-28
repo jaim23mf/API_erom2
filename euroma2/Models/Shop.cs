@@ -64,7 +64,8 @@ namespace euroma2.Models
             this.phoneNumber = t.phoneNumber;
             this.description = t.description;
             this.firstOpeningDay = t.firstOpeningDay;
-
+            this.categoryId= t.categoryId;
+            this.subcategoryId= t.subcategoryId;
         }
 
         private ShopOpH setOH(ICollection<oDay> horas) {
@@ -103,8 +104,8 @@ namespace euroma2.Models
         public int id { get; set; }
         public string title { get; set; }
         public ShopType type { get; set; }
-        public ShopCategory categoryId { get; set; }
-        public ShopSubCategory subcategoryId { get; set; }
+        public int categoryId { get; set; }
+        public int subcategoryId { get; set; }
         public string logo { get; set; }
         public string photo { get; set; }
         public ShopOpH openingHours { get; set; }

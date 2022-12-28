@@ -74,6 +74,7 @@ namespace euroma2.Controllers
             var t = await _dbContext
                 .shop
                 .Include(a => a.openingHours)
+                .Include(a => a.interestIds)
                 .ToListAsync();
 
             List<ShopView> sc = new List<ShopView>();
@@ -82,8 +83,8 @@ namespace euroma2.Controllers
             {
                 ShopView res = new ShopView(s);
 
-                res.categoryId = await GetCategories(s.categoryId);
-                res.subcategoryId = await GetSubCategories(s.subcategoryId);
+                //res.categoryId = await GetCategories(s.categoryId);
+                //res.subcategoryId = await GetSubCategories(s.subcategoryId);
                 res.interestIds = GetInterest(s.interestIds);
                 //res.logo = $"{this._options.BaseFileUrl}/{Consts.LogoImg}/{Path.GetFileName(s.logo)}";
                 //res.photo = $"{this._options.BaseFileUrl}/{Consts.StoreImg}/{Path.GetFileName(s.photo)}";
@@ -111,8 +112,8 @@ namespace euroma2.Controllers
 
             ShopView res = new ShopView(t);
 
-            res.categoryId = await GetCategories(t.categoryId);
-            res.subcategoryId = await GetSubCategories(t.subcategoryId);
+            //res.categoryId = await GetCategories(t.categoryId);
+            //res.subcategoryId = await GetSubCategories(t.subcategoryId);
             res.interestIds = GetInterest(t.interestIds);
             return res;
         }

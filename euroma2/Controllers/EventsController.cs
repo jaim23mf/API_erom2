@@ -211,7 +211,7 @@ namespace euroma2.Controllers
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
             UploadFiles uf = new UploadFiles(this._options);
-            uf = await uf.UploadFileToAsync("EventsImg", file);
+            uf = await uf.UploadFileToAsync(Consts.EventsImg, file);
             return Ok(uf);
         }
     }

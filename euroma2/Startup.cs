@@ -138,9 +138,24 @@ namespace euroma2
             app.UseHsts();
             app.UseHttpsRedirection();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                c.DocumentTitle = "API Auth Demo";
+                c.DefaultModelsExpandDepth(0);
+                c.RoutePrefix = string.Empty;
+            });
+
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseCors("corsapp");
 
             var folders = new[]
             {
+                Consts.EventsImg,
                 Consts.FloorGltf,
                 Consts.LogoImg,
                 Consts.PromoImg,
@@ -162,20 +177,7 @@ namespace euroma2
                 });
                 }
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                c.DocumentTitle = "API Auth Demo";
-                c.DefaultModelsExpandDepth(0);
-                c.RoutePrefix = string.Empty;
-            });
 
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseCors("corsapp");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

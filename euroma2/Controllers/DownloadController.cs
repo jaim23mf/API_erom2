@@ -1,4 +1,5 @@
 ﻿using euroma2.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace euroma2.Controllers

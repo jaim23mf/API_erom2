@@ -8,6 +8,7 @@
         public const string ReachImg = "ReachImg";
         public const string ServiceImg = "ServiceImg";
         public const string StoreImg = "StoreImg";
+        public const string EventsImg = "EventsImg";
 
         public const string MimeGltf = "image/gif";
     }

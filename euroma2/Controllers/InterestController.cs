@@ -40,6 +40,38 @@ namespace euroma2.Controllers
             return t;
         }
 
+
+        [HttpGet("InterestMobile")]
+        public async Task<ActionResult<IEnumerable<Interest_View>>> GetIn()
+        {
+            if (_dbContext.interests == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .interests
+                .ToListAsync();
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            List<Interest_View> liv = new List<Interest_View>();
+            for (int i = 0; i < t.Count; i++) { 
+                Interest_View inter = new Interest_View();
+                inter.id = t[i].id;
+                inter.name = t[i].name;
+
+                var st = (Interest_Group)t[i].group;
+                inter.group = st.ToString();
+
+                liv.Add(inter);
+            }
+
+            return liv;
+        }
+
         // GET api/<InterestController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Interest_model>> GetInterest(int id)

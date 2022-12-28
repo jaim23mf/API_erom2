@@ -10,9 +10,19 @@
 
     }
 
+    public class Interest_View
+    {
+        public int id { get; set; }
+
+        public string name { get; set; }
+
+        public string group { get; set; }
+
+    }
+
     public enum Interest_Group {
-        shops = 0,
-        hobbies=1,
-        events=2
+        shops = 1,
+        hobbies=2,
+        events=3
     }
 }

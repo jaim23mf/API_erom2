@@ -32,7 +32,7 @@
 
         public int floorId { get; set; }
         public List<Map_Graph_Node_Relations> relations {get;set;}
-        public string attachedShopNodeName { get; set; }
+        public string? attachedShopNodeName { get; set; }
 
         public int accessibility { get; set; }
     }

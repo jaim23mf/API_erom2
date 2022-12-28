@@ -731,7 +731,7 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPost("SaveFloor")]
+        [HttpPost("SaveFloor/{floorid}")]
         [Authorize]
         public async Task<IActionResult> SaveFloor(int floorid, FloorSaveData data) {
 
@@ -747,9 +747,15 @@ namespace euroma2.Controllers
             foreach (ShopNode s in data.shopsNodes) { 
                 Map_Shop ms = new Map_Shop();
                 ms.floorId = floorid;
-                ms.shopId = s.attachedShop.id;
-                ms.nodeName = s.nodeName;
-                ms.attachedNavPoint = s.attachedShop.title;
+                if (s.attachedShop != null)
+                {
+                    ms.shopId = s.attachedShop.id;
+                    ms.attachedNavPoint = s.attachedShop.title;
+                }
+                if (s.nodeName != null)
+                {
+                    ms.nodeName = s.nodeName;
+                }
                 _dbContext.map_shop.Add(ms);
             }
 

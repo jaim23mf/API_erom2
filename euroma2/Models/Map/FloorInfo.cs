@@ -25,8 +25,8 @@ namespace euroma2.Models.Map
 
 
     public class ShopNode {
-       public ShopInfo attachedShop { get; set; }
-       public string nodeName { get; set; }
+       public ShopInfo? attachedShop { get; set; }
+       public string? nodeName { get; set; }
     }
 
     public class NavPointInfo {

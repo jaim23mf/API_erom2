@@ -50,6 +50,22 @@ namespace euroma2.Controllers
 
         }
 
+        [HttpGet("EventCMS")]
+        public async Task<ActionResult<IEnumerable<Mall_Event>>> GetPromos()
+        {
+            if (_dbContext.promotion == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .events
+                .Include(a => a.interestIds)
+                .Include(a => a.dateRange)
+                .ToListAsync();
+            return t;
+
+        }
+
         private List<int> GetInterest(List<LineaInterest_event> interest)
         {
 
@@ -165,7 +181,7 @@ namespace euroma2.Controllers
             var ss = await _dbContext.promotion.FindAsync(id);
             if (ss == null)
             {
-                return NotFound();
+                return Ok(new PutResult { result = "Ok" });
             }
 
             await DeleteInterestEvent(ss.id);
@@ -180,7 +196,7 @@ namespace euroma2.Controllers
         {
             if (_dbContext.liEvents == null)
             {
-                return NotFound();
+                return Ok(new PutResult { result = "Ok" });
             }
             // var ss = await _dbContext.liShop.;
 
@@ -192,7 +208,8 @@ namespace euroma2.Controllers
 
             if (student == null || student.Count == 0)
             {
-                return NotFound();
+                //return NotFound();
+                return Ok(new PutResult { result = "Ok" });
             }
 
 

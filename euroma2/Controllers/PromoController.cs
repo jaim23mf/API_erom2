@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace euroma2.Controllers
@@ -19,10 +20,10 @@ namespace euroma2.Controllers
 
         private readonly DataContext _dbContext;
         private readonly PtaInfo _options;
-        public PromoController(DataContext dbContext, PtaInfo options)
+        public PromoController(DataContext dbContext, IOptions<PtaInfo> options)
         {
             _dbContext = dbContext;
-            _options = options;
+            _options = options.Value;
         }
 
         [HttpGet]
@@ -204,7 +205,7 @@ namespace euroma2.Controllers
 
             if (student == null ||student.Count == 0)
             {
-                return NotFound();
+                return Ok(new PutResult { result = "Ok" });
             }
 
             

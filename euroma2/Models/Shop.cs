@@ -72,32 +72,32 @@ namespace euroma2.Models
             ShopOpH op = new ShopOpH();
 
             op.monday = new TimeRange();
-            op.monday.from = horas.ElementAt(0).from;
-            op.monday.to = horas.ElementAt(0).to;
+            op.monday.from = horas.ElementAt(0).from.Split('T')[0];
+            op.monday.to = horas.ElementAt(0).to.Split('T')[0];
 
             op.tuesday = new TimeRange();
-            op.tuesday.from = horas.ElementAt(1).from;
-            op.tuesday.to = horas.ElementAt(1).to;
+            op.tuesday.from = horas.ElementAt(1).from.Split('T')[0];
+            op.tuesday.to = horas.ElementAt(1).to.Split('T')[0];
 
             op.wednesday = new TimeRange();
-            op.wednesday.from = horas.ElementAt(2).from;
-            op.wednesday.to = horas.ElementAt(2).to;
+            op.wednesday.from = horas.ElementAt(2).from.Split('T')[0];
+            op.wednesday.to = horas.ElementAt(2).to.Split('T')[0];
 
             op.thursday = new TimeRange();
-            op.thursday.from = horas.ElementAt(3).from;
-            op.thursday.to = horas.ElementAt(3).to;
+            op.thursday.from = horas.ElementAt(3).from.Split('T')[0];
+            op.thursday.to = horas.ElementAt(3).to.Split('T')[0];
 
             op.friday = new TimeRange();
-            op.friday.from = horas.ElementAt(4).from;
-            op.friday.to = horas.ElementAt(4).to;
+            op.friday.from = horas.ElementAt(4).from.Split('T')[0];
+            op.friday.to = horas.ElementAt(4).to.Split('T')[0];
 
             op.saturday = new TimeRange();
-            op.saturday.from = horas.ElementAt(5).from;
-            op.saturday.to = horas.ElementAt(5).to;
+            op.saturday.from = horas.ElementAt(5).from.Split('T')[0];
+            op.saturday.to = horas.ElementAt(5).to.Split('T')[0];
 
             op.sunday = new TimeRange();
-            op.sunday.from = horas.ElementAt(6).from;
-            op.sunday.to = horas.ElementAt(6).to;
+            op.sunday.from = horas.ElementAt(6).from.Split('T')[0];
+            op.sunday.to = horas.ElementAt(6).to.Split('T')[0];
 
             return op;
         }
@@ -111,7 +111,11 @@ namespace euroma2.Models
         public ShopOpH openingHours { get; set; }
         public string phoneNumber { get; set; }
         public string description { get; set; }
-        public string firstOpeningDay { get; set; }
+        public string firstOpeningDay;
+        public string FirstOpeningDay { 
+            get{ return firstOpeningDay.Split('T')[0]; }
+            set { firstOpeningDay = value; }
+        }
         public List<int> interestIds { get; set; }
 
     }

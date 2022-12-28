@@ -7,7 +7,6 @@ namespace euroma2.Models.Hours
         public int id { get; set; }
         public General general { get; set; }
         public List<Exception_Rules> exceptions { get; set; }
-
         public int id_shop { get; set; }
     }
 
@@ -58,4 +57,5 @@ namespace euroma2.Models.Hours
         public string from { get; set; }
         public string to { get; set; }
     }
+
 }

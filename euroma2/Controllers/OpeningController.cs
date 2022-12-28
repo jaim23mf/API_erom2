@@ -67,6 +67,55 @@ namespace euroma2.Controllers
             return t;
         }
 
+
+        [HttpGet("OpeningMobile")]
+        public async Task<ActionResult<Opening>> GetMobile()
+        {
+            if (_dbContext.opening_hours == null)
+            {
+                return NotFound();
+            }
+            /* var t = await _dbContext
+                 .opening_hours
+                 .Include(a=>a.general.global)
+                 .Include(a=>a.general.food)
+                 .Include(a=>a.general.hypermarket)
+                 .Include(a=>a.general.ourStores)
+                 .Include(a => a.exceptions).ThenInclude(a=>a.global)
+                 .Include(a => a.exceptions).ThenInclude(a=>a.dateRange)
+                 .Include(a => a.exceptions).ThenInclude(a=>a.food)
+                 .Include(a => a.exceptions).ThenInclude(a=>a.hypermarket)
+                 .Include(a => a.exceptions).ThenInclude(a=>a.ourStores)
+                 .ToListAsync();*/
+            var g = await _dbContext
+                .opening_general
+                .Include(a => a.global)
+                .Include(a => a.food)
+                .Include(a => a.hypermarket)
+                .Include(a => a.ourStores)
+                .ToListAsync();
+
+            var e = await _dbContext
+                .opening_exceptions
+                .Include(a => a.dateRange)
+                .Include(a => a.global)
+                .Include(a => a.food)
+                .Include(a => a.hypermarket)
+                .Include(a => a.ourStores)
+                .ToListAsync();
+
+            Opening t = new Opening();
+            t.exceptions = e;
+            t.general = g[0];
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            return t;
+        }
+
         [HttpGet("General")]
         public async Task<ActionResult<IEnumerable<General>>> GetGeneral()
         {

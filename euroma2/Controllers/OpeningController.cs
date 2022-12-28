@@ -26,18 +26,6 @@ namespace euroma2.Controllers
             {
                 return NotFound();
             }
-           /* var t = await _dbContext
-                .opening_hours
-                .Include(a=>a.general.global)
-                .Include(a=>a.general.food)
-                .Include(a=>a.general.hypermarket)
-                .Include(a=>a.general.ourStores)
-                .Include(a => a.exceptions).ThenInclude(a=>a.global)
-                .Include(a => a.exceptions).ThenInclude(a=>a.dateRange)
-                .Include(a => a.exceptions).ThenInclude(a=>a.food)
-                .Include(a => a.exceptions).ThenInclude(a=>a.hypermarket)
-                .Include(a => a.exceptions).ThenInclude(a=>a.ourStores)
-                .ToListAsync();*/
             var g = await _dbContext
                 .opening_general
                 .Include(a => a.global)
@@ -69,24 +57,12 @@ namespace euroma2.Controllers
 
 
         [HttpGet("OpeningMobile")]
-        public async Task<ActionResult<Opening>> GetMobile()
+        public async Task<ActionResult<OpeningView>> GetMobile()
         {
             if (_dbContext.opening_hours == null)
             {
                 return NotFound();
             }
-            /* var t = await _dbContext
-                 .opening_hours
-                 .Include(a=>a.general.global)
-                 .Include(a=>a.general.food)
-                 .Include(a=>a.general.hypermarket)
-                 .Include(a=>a.general.ourStores)
-                 .Include(a => a.exceptions).ThenInclude(a=>a.global)
-                 .Include(a => a.exceptions).ThenInclude(a=>a.dateRange)
-                 .Include(a => a.exceptions).ThenInclude(a=>a.food)
-                 .Include(a => a.exceptions).ThenInclude(a=>a.hypermarket)
-                 .Include(a => a.exceptions).ThenInclude(a=>a.ourStores)
-                 .ToListAsync();*/
             var g = await _dbContext
                 .opening_general
                 .Include(a => a.global)
@@ -104,9 +80,30 @@ namespace euroma2.Controllers
                 .Include(a => a.ourStores)
                 .ToListAsync();
 
-            Opening t = new Opening();
+            OpeningView t = new OpeningView();
             t.exceptions = e;
-            t.general = g[0];
+            t.general.global = g[0].global;
+            t.general.id = g[0].id;
+
+            t.general.food.id = g[0].food.id;
+            t.general.food.from = g[0].food.from;
+            t.general.food.to = g[0].food.to;
+            t.general.food.fromWeekDay = g[0].food.fromWeekDay.ToString();
+            t.general.food.toWeekDay = g[0].food.toWeekDay.ToString();
+
+            t.general.hypermarket.id = g[0].hypermarket.id;
+            t.general.hypermarket.from = g[0].hypermarket.from;
+            t.general.hypermarket.to = g[0].hypermarket.to;
+            t.general.hypermarket.fromWeekDay = g[0].hypermarket.fromWeekDay.ToString();
+            t.general.hypermarket.toWeekDay = g[0].hypermarket.toWeekDay.ToString();
+
+            t.general.ourStores.id = g[0].ourStores.id;
+            t.general.ourStores.from = g[0].ourStores.from;
+            t.general.ourStores.to = g[0].ourStores.to;
+            t.general.ourStores.fromWeekDay = g[0].ourStores.fromWeekDay.ToString();
+            t.general.ourStores.toWeekDay = g[0].ourStores.toWeekDay.ToString();
+
+
 
             if (t == null)
             {

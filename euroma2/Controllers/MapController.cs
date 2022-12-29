@@ -643,13 +643,16 @@ namespace euroma2.Controllers
                     {
                         ShopNode sn = new ShopNode();
                         sn.nodeName = e.nodeName;
-                        sn.attachedShop = new ShopInfo();
-                        sn.attachedShop.id = e.shopId;
-
-                        var y = await _dbContext.shop.FirstOrDefaultAsync(p => p.id == e.shopId);
-                        if (y != null)
+                        if (e.shopId != 0)
                         {
-                            sn.attachedShop.title = y.title;
+                            sn.attachedShop = new ShopInfo();
+                            sn.attachedShop.id = e.shopId;
+
+                            var y = await _dbContext.shop.FirstOrDefaultAsync(p => p.id == e.shopId);
+                            if (y != null)
+                            {
+                                sn.attachedShop.title = y.title;
+                            }
                         }
                         fw.shopsNodes.Add(sn);
                     }

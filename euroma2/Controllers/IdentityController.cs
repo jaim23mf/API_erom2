@@ -138,6 +138,7 @@ namespace euroma2.Controllers
 
             RefreshToken r = new RefreshToken();
             r.Token = refreshToken;
+            if(!String.IsNullOrEmpty(refreshTokenE))
             r.Expires = DateTime.Parse(refreshTokenE);
 
             if (r.Expires < DateTime.Now) {

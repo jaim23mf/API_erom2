@@ -81,7 +81,36 @@ namespace euroma2.Controllers
                 .ToListAsync();
 
             OpeningView t = new OpeningView();
-            t.exceptions = e;
+            //t.exceptions = e;
+            t.exceptions = e.Select(ex => new Exception_Rule_View
+            {
+                dateRange = ex.dateRange,
+                global = ex.global,
+                food = new Day_Opening_Hours_Food_View
+                {
+                    from = ex.food.from,
+                    fromWeekDay = ex.food.fromWeekDay.ToString(),
+                    id = ex.food.id,
+                    to = ex.food.to,
+                    toWeekDay = ex.food.toWeekDay.ToString()
+                },
+                hypermarket = new Day_Opening_Hours_Hipermarket_View()
+                {
+                    from = ex.hypermarket.from,
+                    fromWeekDay = ex.hypermarket.fromWeekDay.ToString(),
+                    id = ex.hypermarket.id,
+                    to = ex.hypermarket.to,
+                    toWeekDay = ex.hypermarket.toWeekDay.ToString()
+                },
+                ourStores = new Day_Opening_Hours_Stores_View()
+                {
+                    from = ex.ourStores.from,
+                    fromWeekDay = ex.ourStores.fromWeekDay.ToString(),
+                    id = ex.ourStores.id,
+                    to = ex.ourStores.to,
+                    toWeekDay = ex.ourStores.toWeekDay.ToString()
+                }
+            }).ToList();
             t.general.global = g[0].global;
             t.general.id = g[0].id;
 

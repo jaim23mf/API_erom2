@@ -44,7 +44,10 @@ namespace euroma2.Models
         public DbSet<Promotion> promotion { get; set; } = null!;
         public DbSet<Reach_Us> reach { get; set; } = null!;
         public DbSet<Service_model> service { get; set; } = null!;
-        public DbSet<FloorInfo> floorInfo { get; set; } = null!;
+        public DbSet<FloorInfo> floor_info { get; set; } = null!;
+        public DbSet<FloorNavPoint> floor_navpoint { get; set; }
+        public DbSet<FloorNavPointRelation> floor_navpoint_relation { get; set; }
+        public DbSet<FloorShop> floor_shop { get; set; }
 
         public DbSet<LineaInterest_shop> liShop { get; set; } = null!;
         public DbSet<LineaInterest_promo> liPromo { get; set; } = null!;
@@ -52,10 +55,10 @@ namespace euroma2.Models
         public DbSet<oDay> oDay { get; set; } = null!;
         public DbSet<Date_Range> dRange { get; set; } = null!;
         public DbSet<User> user { get; set; } = null!;
-        public DbSet<Map_Map> map { get; set; } = null!;
-        public DbSet<Map_Shop> map_shop { get; set; } = null!;
-        public DbSet<Map_Graph_Node> map_graph_node { get; set; } = null!;
-        public DbSet<Map_Graph_Node_Relations> map_graph_node_relations { get; set; } = null!;
+        //public DbSet<Map_Map> map { get; set; } = null!;
+        //public DbSet<Map_Shop> map_shop { get; set; } = null!;
+        //public DbSet<Map_Graph_Node> map_graph_node { get; set; } = null!;
+        //public DbSet<Map_Graph_Node_Relations> map_graph_node_relations { get; set; } = null;
 
 
 

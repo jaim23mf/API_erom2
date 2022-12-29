@@ -647,8 +647,10 @@ namespace euroma2.Controllers
                         sn.attachedShop.id = e.shopId;
 
                         var y = await _dbContext.shop.FirstOrDefaultAsync(p => p.id == e.shopId);
-
-                        sn.attachedShop.title = y.title; 
+                        if (y != null)
+                        {
+                            sn.attachedShop.title = y.title;
+                        }
                         fw.shopsNodes.Add(sn);
                     }
                 }
@@ -750,7 +752,7 @@ namespace euroma2.Controllers
                 if (s.attachedShop != null)
                 {
                     ms.shopId = s.attachedShop.id;
-                    ms.attachedNavPoint = s.attachedShop.title;
+                    //ms.attachedNavPoint = s.attachedShop.title;
                 }
                 if (s.nodeName != null)
                 {

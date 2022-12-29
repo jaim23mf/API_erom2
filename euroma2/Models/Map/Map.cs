@@ -49,7 +49,7 @@
         public int id { get; set; }
         public string nodeName { get; set; }
         public int shopId { get; set; }
-        public string attachedNavPoint { get; set; }
+        //public string attachedNavPoint { get; set; }
         public int floorId { get; set; }
 
     }

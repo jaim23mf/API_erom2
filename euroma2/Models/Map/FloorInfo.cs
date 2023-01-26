@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Xml.Linq;
@@ -19,12 +20,20 @@ namespace euroma2.Models.Map
     }
 
 
+    public class FloorInfo_it { 
+        
+        public int id { get; set; }
+        public string name { get; set; }
+        public FloorInfo fi { get; set; }
+    }
+
     public class FloorInfoUpdate
     {
         public int id { get; set; }
         public string modelUrl { get; set; }
         public string modelBinUrl { get; set; }
         public string name { get; set; }
+        public string? name_it { get; set; }
         public int floor { get; set; }
     }
 

@@ -1,4 +1,5 @@
-﻿using euroma2.Models;
+﻿using euroma2.Migrations;
+using euroma2.Models;
 using euroma2.Models.Events;
 using euroma2.Models.Hours;
 using euroma2.Services;
@@ -14,7 +15,6 @@ using System.Linq;
 
 namespace euroma2.Controllers
 {
-    [Route("[controller]")]
     [ApiController]
     public class ShopController : ControllerBase
     {
@@ -29,7 +29,7 @@ namespace euroma2.Controllers
 
 
 
-        [HttpPost("ImgUpload/{id}")]
+        [HttpPost("Shop/ImgUpload/{id}")]
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {
@@ -39,7 +39,7 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPost("LogoUpload/{id}")]
+        [HttpPost("Shop/LogoUpload/{id}")]
         [Authorize]
         public async Task<IActionResult> UploadToFileSystemlogo(IFormFile file, int id)
         {
@@ -48,8 +48,8 @@ namespace euroma2.Controllers
             return Ok(uf);
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shop>>> GetShops() {
+        [HttpGet("{lang}/Shop")]
+        public async Task<ActionResult<IEnumerable<Shop>>> GetShops(string lang) {
             if (_dbContext.shop == null) {
                 return NotFound();
             }
@@ -60,12 +60,60 @@ namespace euroma2.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
+            foreach (Shop s in t)
+            {
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .shop_it
+                    .FirstOrDefaultAsync(p => p.shop.id == s.id);
+                    if (it != null)
+                    {
+                        s.title = it.title;
+                        s.description = it.description;
+                    }
+                }
+            }
             return t;
 
         }
 
-        [HttpGet ("ShopView")]
-        public async Task<ActionResult<IEnumerable<ShopView>>> GetShopsView()
+        [HttpGet("Shop")]
+        public async Task<ActionResult<IEnumerable<ShopCMS>>> GetShops()
+        {
+            if (_dbContext.shop == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .shop
+                .Include(a => a.openingHours)
+                .Include(a => a.interestIds)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var l = await _dbContext.shop_it.ToListAsync();
+
+            List<ShopCMS> sc = new List<ShopCMS>();
+
+            foreach (Shop s in t)
+            {
+                ShopCMS res = new ShopCMS(s);
+                var elem = l.Find(x => x.id == s.id);
+                if (elem != null)
+                {
+                    res.title_it = elem.title;
+                    res.description_it = elem.description;
+                }
+                sc.Add(res);
+            }
+            return sc;
+
+
+        }
+
+        [HttpGet ("{lang}/Shop/ShopView")]
+        public async Task<ActionResult<IEnumerable<ShopView>>> GetShopsView(string lang)
         {
             if (_dbContext.shop == null)
             {
@@ -88,6 +136,19 @@ namespace euroma2.Controllers
                 res.interestIds = GetInterest(s.interestIds);
                 //res.logo = $"{this._options.BaseFileUrl}/{Consts.LogoImg}/{Path.GetFileName(s.logo)}";
                 //res.photo = $"{this._options.BaseFileUrl}/{Consts.StoreImg}/{Path.GetFileName(s.photo)}";
+
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .shop_it
+                    .FirstOrDefaultAsync(p => p.shop.id == s.id);
+                    if (it != null)
+                    {
+                        res.title = it.title;
+                        res.description = it.description;
+                    }
+                }
+
                 sc.Add(res);
             }
 
@@ -95,8 +156,8 @@ namespace euroma2.Controllers
 
         }
 
-        [HttpGet("ShopView/{id}")]
-        public async Task<ActionResult<ShopView>> GetShop(int id)
+        [HttpGet("{lang}/Shop/ShopView/{id}")]
+        public async Task<ActionResult<ShopView>> GetShop(int id, string lang)
         {
             if (_dbContext.shop == null)
             {
@@ -115,12 +176,25 @@ namespace euroma2.Controllers
             //res.categoryId = await GetCategories(t.categoryId);
             //res.subcategoryId = await GetSubCategories(t.subcategoryId);
             res.interestIds = GetInterest(t.interestIds);
+
+            if (lang == "it")
+            {
+                var it = await _dbContext
+                .shop_it
+                .FirstOrDefaultAsync(p => p.shop.id == res.id);
+                if (it != null)
+                {
+                    res.title = it.title;
+                    res.description = it.description;
+                }
+            }
+
             return res;
         }
 
 
-        [HttpGet("ShopInfo/{id}")]
-        public async Task<ActionResult<ShopInfo>> GetShopInfo(int id)
+        [HttpGet("{lang}/Shop/ShopInfo/{id}")]
+        public async Task<ActionResult<ShopInfo>> GetShopInfo(int id,string lang)
         {
             if (_dbContext.shop == null)
             {
@@ -136,7 +210,16 @@ namespace euroma2.Controllers
 
             ShopInfo res = new ShopInfo(t);
 
-            
+            if (lang == "it")
+            {
+                var it = await _dbContext
+                .shop_it
+                .FirstOrDefaultAsync(p => p.shop.id == res.id);
+                if (it != null)
+                {
+                    res.title = it.title;
+                }
+            }
 
             return res;
         }
@@ -211,14 +294,45 @@ namespace euroma2.Controllers
             return sc;
         }
 
-        [HttpPost]
+        [HttpPost("Shop")]
         [Authorize]
-        public async Task<ActionResult<Shop>> PostShop(Shop shop)
+        public async Task<ActionResult<Shop>> PostShop(ShopCMS s)
         {
-            _dbContext.shop.Add(shop);
+            /**_dbContext.shop.Add(shop);
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
+            return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);*/
+
+            Shop p = new Shop();
+            Shop_it p_it = new Shop_it();
+            p.id = s.id;
+            p.photo = s.photo;
+            p.title = s.title;
+            p.categoryId = s.categoryId;
+            p.type = s.type;
+            p.subcategoryId = s.subcategoryId;
+            p.logo = s.logo;
+            p.openingHours = s.openingHours;
+            p.phoneNumber = s.phoneNumber;
+            p.description = s.description;
+            p.firstOpeningDay = s.firstOpeningDay;
+            p.interestIds = s.interestIds;
+
+            _dbContext.shop.Add(p);
+
+            await _dbContext.SaveChangesAsync();
+            var res = CreatedAtAction(nameof(GetShop), new { id = p.id, lang = "en" }, p);
+
+            p_it.id = p.id;
+            p_it.shop = p;
+            p_it.title = s.title_it != null ? s.title_it:"";
+            p_it.description = s.description_it != null ? s.description_it:"";
+
+            _dbContext.shop_it.Add(p_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetShop), new { id = p.id, lang = "en" }, p); ;
+
         }
 
         private List<LineaShopCategory> setCat(int id , List<LineaShopCategory> ls) {
@@ -238,27 +352,62 @@ namespace euroma2.Controllers
             return ls;
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Shop/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutShop(int id, Shop shop)
+        public async Task<IActionResult> PutShop(int id, ShopCMS s)
         {
-            if (id!= shop.id) {
+            if (id!= s.id) {
                 return BadRequest();
             }
+            ////
+            Shop p = new Shop();
+            p.id = s.id;
+            p.photo = s.photo;
+            p.title = s.title;
+            p.categoryId = s.categoryId;
+            p.type = s.type;
+            p.subcategoryId = s.subcategoryId;
+            p.logo = s.logo;
+            p.openingHours = s.openingHours;
+            p.phoneNumber = s.phoneNumber;
+            p.description = s.description;
+            p.firstOpeningDay = s.firstOpeningDay;
+            p.interestIds = s.interestIds;
 
-            _dbContext.Entry(shop).State = EntityState.Modified;
+            Shop_it scit = new Shop_it();
+            scit.id = s.id;
+            scit.title = s.title_it;
+            scit.description = s.description_it;
+            scit.shop = p;
 
-            foreach (oDay li in shop.openingHours)
+            _dbContext.Entry(p).State = EntityState.Modified;
+
+            if (_dbContext.shop_it.Any(e => e.id == s.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.shop_it.Add(scit);
+            }
+
+
+
+
+
+            ////
+
+            foreach (oDay li in s.openingHours)
             {
                 _dbContext.Entry(li).State = EntityState.Modified;
             }
 
 
-            await DeleteInterestShop(shop.id);
+            await DeleteInterestShop(s.id);
 
             
 
-            shop.interestIds.ForEach(item => 
+            s.interestIds.ForEach(item => 
                     _dbContext.liShop.Add(item)
             );
 
@@ -302,7 +451,7 @@ namespace euroma2.Controllers
         {
             return (_dbContext.oDay?.Any(e => e.id == id)).GetValueOrDefault();
         }
-        [HttpDelete("{id}")]
+        [HttpDelete("Shop/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteShop(int id)
         {
@@ -411,18 +560,36 @@ namespace euroma2.Controllers
 
         #region CATEGORY
 
-        [HttpPost("Category")]
+        [HttpPost("Shop/Category")]
         [Authorize]
-        public async Task<ActionResult<ShopCategory>> PostCategory(ShopCategory shop)
+        public async Task<ActionResult<ShopCategory>> PostCategory(ShopCategoryCMS shop)
         {
-            _dbContext.shopCategory.Add(shop);
+            ShopCategory cat = new ShopCategory();
+            ShopCategory_it cat_it = new ShopCategory_it();
+            cat.title = shop.title;
+            cat.shopType = shop.shopType;
+
+            cat_it.title = shop.title_it;
+
+            _dbContext.shopCategory.Add(cat);
+
             await _dbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetCategory), new { id = shop.id }, shop);
+            var i = CreatedAtAction(nameof(GetCategory), new { id = cat.id, lang = "en" }, cat);
+
+            cat_it.id = cat.id;
+            cat_it.shopCategory = cat;
+            cat_it.cat_id = cat.id;
+            cat_it.title = shop.title_it;
+
+            _dbContext.shopCategory_it.Add(cat_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetCategory), new { id = cat.id, lang = "en" }, cat); ;
         }
 
 
-        [HttpGet("Category/{id}")]
-        public async Task<ActionResult<ShopCategory>> GetCategory(int id)
+        [HttpGet("Shop/{lang}/Category/{id}")]
+        public async Task<ActionResult<ShopCategory>> GetCategory(int id,string lang)
         {
             if (_dbContext.shopCategory == null)
             {
@@ -431,6 +598,13 @@ namespace euroma2.Controllers
             var t = await _dbContext
                 .shopCategory.FirstOrDefaultAsync(p => p.id == id);
 
+            if (lang == "it") {
+                var l = await _dbContext
+                           .shopCategory_it.
+                           FirstOrDefaultAsync(p => p.id == id);
+                t.title = l.title;
+            }
+
             if (t == null)
             {
                 return NotFound();
@@ -438,46 +612,68 @@ namespace euroma2.Controllers
             return t;
         }
 
-        [HttpGet("Category")]
-        public async Task<ActionResult<IEnumerable<ShopCategory>>> GetCategory()
+
+
+        [HttpGet("Shop/{lang}/Category")]
+        public async Task<ActionResult<IEnumerable<ShopCategory>>> GetCategory(string lang)
         {
             if (_dbContext.shopCategory == null)
             {
                 return NotFound();
             }
-            return await _dbContext
-                .shopCategory
-                .ToListAsync();
+
+            var list = await _dbContext
+                    .shopCategory
+                    .ToListAsync();
+
+            if (lang == "en")
+            {
+                return list;
+            }
+            else if (lang == "it")
+            {
+                //cambiar de la lista el titulo por el titulo en italiano...
+                var t = await _dbContext
+                        .shopCategory_it
+                        .ToListAsync();
+                foreach (var cat in list) {
+                    var elem = t.Find(x => x.id == cat.id);
+                    cat.title = elem.title;
+                }
+                return list;
+            }
+            else {
+                return NotFound();
+            }
         }
 
-
-        [HttpGet("CategoryM")]
-        public async Task<ActionResult<IEnumerable<ShopCategoryM>>> GetCategoryM()
+        [HttpGet("Shop/Category")]
+        public async Task<ActionResult<IEnumerable<ShopCategoryCMS>>> GetFullCategory()
         {
             if (_dbContext.shopCategory == null)
             {
                 return NotFound();
             }
+
             var t = await _dbContext
-                .shopCategory
-                .ToListAsync();
+                      .shopCategory
+                      .ToListAsync();
+            var l = await _dbContext.shopCategory_it.ToListAsync();
 
-            List<ShopCategoryM> lsc= new List<ShopCategoryM>();
+            List<ShopCategoryCMS> sc = new List<ShopCategoryCMS>();
 
-            for(int i = 0; i < t.Count; i++)
+            foreach (ShopCategory s in t)
             {
-                ShopCategoryM sc = new ShopCategoryM();
-                sc.id = t[i].id;
-                sc.title = t[i].title;
-                var st = (StoreType)t[i].shopType;
-                sc.shopType = st.ToString();
-                lsc.Add(sc);
+                ShopCategoryCMS res = new ShopCategoryCMS(s);
+                var elem = l.Find(x => x.shopCategory!= null && x.shopCategory.id == s.id);
+                if(elem != null)
+                    res.title_it = elem.title;
+                sc.Add(res);
             }
-
-            return lsc;
+            return sc;
         }
 
-        [HttpDelete("Category/{id}")]
+        [HttpDelete("Shop/Category/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteCategory(int id)
         {
@@ -496,16 +692,35 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPut("Category/{id}")]
+        [HttpPut("Shop/Category/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutCategory(int id, ShopCategory shopCategory)
+        public async Task<IActionResult> PutCategory(int id, ShopCategoryCMS shopCategory)
         {
             if (id != shopCategory.id)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(shopCategory).State = EntityState.Modified;
+            ShopCategory sc = new ShopCategory();
+            sc.id = shopCategory.id;
+            sc.title = shopCategory.title;
+            sc.shopType = shopCategory.shopType;
+
+            ShopCategory_it scit = new ShopCategory_it();
+            scit.id = shopCategory.id;
+            scit.cat_id = shopCategory.id;
+            scit.title = shopCategory.title_it;
+            scit.shopCategory = sc;
+
+            _dbContext.Entry(sc).State = EntityState.Modified;
+            if (_dbContext.shopCategory_it.Any(e => e.id == shopCategory.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.shopCategory_it.Add(scit);
+            }
 
             try
             {
@@ -534,18 +749,39 @@ namespace euroma2.Controllers
         #endregion
 
         #region SUBCATEGORY 
-        [HttpPost("SubCategory")]
+        [HttpPost("Shop/SubCategory")]
         [Authorize]
-        public async Task<ActionResult<ShopSubCategory>> PostSubCategory(ShopSubCategory shop)
+        public async Task<ActionResult<ShopSubCategory>> PostSubCategory(ShopSubCategoryCMS shop)
         {
-            _dbContext.shopSubCategory.Add(shop);
+            /*_dbContext.shopSubCategory.Add(shop);
             await _dbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetSubCategory), new { id = shop.id }, shop);
+            return CreatedAtAction(nameof(GetSubCategory), new { id = shop.id }, shop);*/
+
+            ShopSubCategory cat = new ShopSubCategory();
+            ShopSubCategory_it cat_it = new ShopSubCategory_it();
+            cat.title = shop.title;
+            cat.categoryId = shop.categoryId;
+
+            cat_it.title = shop.title_it;
+
+            _dbContext.shopSubCategory.Add(cat);
+
+            await _dbContext.SaveChangesAsync();
+            var i = CreatedAtAction(nameof(GetSubCategory), new { id = cat.id, lang = "en" }, cat);
+
+            cat_it.id = cat.id;
+            cat_it.shopSubCategory = cat;
+            cat_it.title = shop.title_it;
+
+            _dbContext.shopSubCategory_it.Add(cat_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetSubCategory), new { id = cat.id, lang = "en" }, cat); ;
         }
 
 
-        [HttpGet("SubCategory/{id}")]
-        public async Task<ActionResult<ShopSubCategory>> GetSubCategory(int id)
+        [HttpGet("Shop/{lang}/SubCategory/{id}")]
+        public async Task<ActionResult<ShopSubCategory>> GetSubCategory(int id, string lang)
         {
             if (_dbContext.shopSubCategory == null)
             {
@@ -554,6 +790,15 @@ namespace euroma2.Controllers
             var t = await _dbContext
                 .shopSubCategory.FirstOrDefaultAsync(p => p.id == id);
 
+
+            if (lang == "it")
+            {
+                var l = await _dbContext
+                           .shopSubCategory_it.
+                           FirstOrDefaultAsync(p => p.id == id);
+                t.title = l.title;
+            }
+
             if (t == null)
             {
                 return NotFound();
@@ -561,19 +806,78 @@ namespace euroma2.Controllers
             return t;
         }
 
-        [HttpGet("SubCategory")]
-        public async Task<ActionResult<IEnumerable<ShopSubCategory>>> GetSubCategory()
+        [HttpGet("Shop/SubCategory")]
+        public async Task<ActionResult<IEnumerable<ShopSubCategoryCMS>>> GetSubCategory()
         {
-            if (_dbContext.shopSubCategory == null)
+            /*if (_dbContext.shopSubCategory == null)
             {
                 return NotFound();
             }
             return await _dbContext
                 .shopSubCategory
-                .ToListAsync();
+                .ToListAsync();*/
+            if (_dbContext.shopSubCategory == null)
+            {
+                return NotFound();
+            }
+
+            var t = await _dbContext
+                      .shopSubCategory
+                      .ToListAsync();
+            var l = await _dbContext.shopSubCategory_it.ToListAsync();
+
+            List<ShopSubCategoryCMS> sc = new List<ShopSubCategoryCMS>();
+
+            foreach (ShopSubCategory s in t)
+            {
+                ShopSubCategoryCMS res = new ShopSubCategoryCMS(s);
+                var elem = l.Find(x => x.shopSubCategory != null && x.shopSubCategory.id == s.id);
+                if (elem != null)
+                    res.title_it = elem.title;
+                sc.Add(res);
+            }
+            return sc;
+
+
+
         }
 
-        [HttpDelete("SubCategory/{id}")]
+        [HttpGet("Shop/{lang}/SubCategory")]
+        public async Task<ActionResult<IEnumerable<ShopSubCategory>>> GetSubCategory(string lang)
+        {
+            if (_dbContext.shopSubCategory == null)
+            {
+                return NotFound();
+            }
+
+            var list = await _dbContext
+                    .shopSubCategory
+                    .ToListAsync();
+
+            if (lang == "en")
+            {
+                return list;
+            }
+            else if (lang == "it")
+            {
+                //cambiar de la lista el titulo por el titulo en italiano...
+                var t = await _dbContext
+                        .shopSubCategory_it
+                        .ToListAsync();
+                foreach (var cat in list)
+                {
+                    var elem = t.Find(x => x.id == cat.id);
+                    cat.title = elem.title;
+                }
+                return list;
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete("Shop/SubCategory/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteSubCategory(int id)
         {
@@ -592,16 +896,35 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPut("SubCategory/{id}")]
+        [HttpPut("Shop/SubCategory/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutSubCategory(int id, ShopSubCategory shopSubCategory)
+        public async Task<IActionResult> PutSubCategory(int id, ShopSubCategoryCMS shopSubCategory)
         {
             if (id != shopSubCategory.id)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(shopSubCategory).State = EntityState.Modified;
+            ShopSubCategory sc = new ShopSubCategory();
+            sc.id = shopSubCategory.id;
+            sc.title = shopSubCategory.title;
+            sc.categoryId = shopSubCategory.categoryId;
+
+            ShopSubCategory_it scit = new ShopSubCategory_it();
+            scit.id = shopSubCategory.id;
+            scit.title = shopSubCategory.title_it;
+            scit.shopSubCategory = sc;
+
+            _dbContext.Entry(sc).State = EntityState.Modified;
+            if (_dbContext.shopSubCategory_it.Any(e => e.id == shopSubCategory.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.shopSubCategory_it.Add(scit);
+            }
+
 
             try
             {
@@ -609,7 +932,7 @@ namespace euroma2.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!SubCategoryExists(id))
+                if (!CategoryExists(id))
                 {
                     return NotFound();
                 }

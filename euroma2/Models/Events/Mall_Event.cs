@@ -26,6 +26,46 @@ namespace euroma2.Models.Events
         public int id_interest { get; set; }
     }
 
+
+    public class Mall_EventCMS
+    {
+
+        public Mall_EventCMS() { }
+        public Mall_EventCMS(Mall_Event p)
+        {
+            this.id = p.id;
+            this.image = p.image;
+            this.dateRange = p.dateRange;
+            this.title = p.title;
+            this.description = p.description;
+            this.interestIds = p.interestIds;
+        }
+
+        public int id { get; set; }
+
+        public Date_Range dateRange { get; set; }
+
+        public string image { get; set; }
+
+        public string title { get; set; }
+        public string? title_it { get; set; }
+
+        public string description { get; set; }
+        public string? description_it { get; set; }
+
+        public List<LineaInterest_event> interestIds { get; set; }
+
+    }
+
+    public class Mall_Event_it
+    {
+        public int id { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+
+        public Mall_Event mall_event { get; set; }
+    }
+
     public class EventView
     {
 

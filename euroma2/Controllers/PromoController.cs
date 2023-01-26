@@ -12,7 +12,7 @@ using System;
 
 namespace euroma2.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class PromoController : ControllerBase
     {
@@ -26,25 +26,50 @@ namespace euroma2.Controllers
             _options = options.Value;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Promotion>>> GetPromos()
+        [HttpGet("Promo")]
+        public async Task<ActionResult<IEnumerable<PromotionCMS>>> GetPromos()
         {
+            /* if (_dbContext.promotion == null)
+             {
+                 return NotFound();
+             }
+             var t = await _dbContext
+                 .promotion
+                 .Include(a => a.interestIds)
+                 .Include(a => a.dateRange)
+                 .ToListAsync();
+             return t;
+            */
             if (_dbContext.promotion == null)
             {
                 return NotFound();
             }
             var t = await _dbContext
-                .promotion
-                .Include(a => a.interestIds)
-                .Include(a => a.dateRange)
-                .ToListAsync();
-            return t;
+                      .promotion
+                      .Include(a => a.interestIds)
+                      .Include(a => a.dateRange)
+                      .ToListAsync();
+            var l = await _dbContext.promotion_it.ToListAsync();
 
+            List<PromotionCMS> sc = new List<PromotionCMS>();
+
+            foreach (Promotion s in t)
+            {
+                PromotionCMS res = new PromotionCMS(s);
+                var elem = l.Find(x => x.promotion != null && x.promotion.id == s.id);
+                if (elem != null)
+                {
+                    res.title_it = elem.title;
+                    res.description_it = elem.description;
+                }
+                sc.Add(res);
+            }
+            return sc;
         }
 
 
-        [HttpGet("PromoView")]
-        public async Task<ActionResult<IEnumerable<PromoView>>> GetPromosMobile()
+        [HttpGet("{lang}/Promo/PromoView")]
+        public async Task<ActionResult<IEnumerable<PromoView>>> GetPromosMobile(string lang)
         {
             if (_dbContext.promotion == null)
             {
@@ -61,7 +86,17 @@ namespace euroma2.Controllers
             foreach (Promotion s in t)
             {
                 PromoView res = new PromoView(s);
-
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .promotion_it
+                    .FirstOrDefaultAsync(p => p.id == s.id);
+                    if (it != null)
+                    {
+                        res.title = it.title;
+                        res.description = it.description;
+                    }
+                }
                 res.interestIds = GetInterest(s.interestIds);
                 sc.Add(res);
             }
@@ -83,19 +118,41 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("Promo")]
         [Authorize]
-        public async Task<ActionResult<Promotion>> PostPromo(Promotion promo)
+        public async Task<ActionResult<PromotionCMS>> PostPromo(PromotionCMS promo)
         {
-            _dbContext.promotion.Add(promo);
+            /*_dbContext.promotion.Add(promo);
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return CreatedAtAction(nameof(GetPromo), new { id = promo.id }, promo);
+            return CreatedAtAction(nameof(GetPromo), new { id = promo.id }, promo);*/
+            Promotion p = new Promotion();
+            Promotion_it p_it = new Promotion_it();
+            p.shopId = promo.shopId;
+            p.dateRange = promo.dateRange;
+            p.image = promo.image;
+            p.title = promo.title;
+            p.description = promo.description;
+
+            _dbContext.promotion.Add(p);
+
+            await _dbContext.SaveChangesAsync();
+            var res = CreatedAtAction(nameof(GetPromo), new { id = p.id, lang = "en" }, p);
+
+            p_it.id = p.id;
+            p_it.promotion = p;
+            p_it.title = promo.title_it;
+            p_it.description = promo.description_it;
+
+            _dbContext.promotion_it.Add(p_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetPromo), new { id = p.id, lang = "en" }, p); ;
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PromoView>> GetPromo(int id)
+        [HttpGet("{lang}/Promo/{id}")]
+        public async Task<ActionResult<PromoView>> GetPromo(int id,string lang)
         {
             if (_dbContext.promotion == null)
             {
@@ -114,23 +171,66 @@ namespace euroma2.Controllers
 
             PromoView res = new PromoView(t);
 
+            if (lang == "it") {
+                var it = await _dbContext
+                .promotion_it
+                .FirstOrDefaultAsync(p => p.id == id);
+
+                res.title = it.title;
+                res.description = it.description;
+            }
+
+          
+
             res.interestIds = GetInterest(t.interestIds);
 
 
             return res;
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Promo/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutPromo(int id, Promotion promo)
+        public async Task<IActionResult> PutPromo(int id, PromotionCMS promo)
         {
             if (id != promo.id)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(promo).State = EntityState.Modified;
+            Promotion sc = new Promotion();
+            sc.id = promo.id;
+            sc.shopId = promo.shopId;
+            sc.dateRange = promo.dateRange;
+            sc.image = promo.image;
+            sc.description = promo.description;
+            sc.title = promo.title;
+            sc.interestIds = promo.interestIds;
+
+            Promotion_it scit = new Promotion_it();
+            scit.id = promo.id;
+            scit.title = promo.title_it;
+            scit.description = promo.description_it;
+            scit.promotion = sc;
+
+            _dbContext.Entry(sc).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+
             _dbContext.Entry(promo.dateRange).State = EntityState.Modified;
+
+            await _dbContext.SaveChangesAsync();
+
+            if (_dbContext.promotion_it.Any(e => e.id == promo.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.promotion_it.Add(scit);
+            }
+
+
+            //_dbContext.Entry(promo).State = EntityState.Modified;
 
             await DeleteInterestPromo(id);
 
@@ -168,7 +268,7 @@ namespace euroma2.Controllers
             return (_dbContext.liPromo?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Promo/{id}")]
         [Authorize]
         public async Task<IActionResult> DeletePromo(int id)
         {
@@ -219,7 +319,7 @@ namespace euroma2.Controllers
             return Ok(new PutResult { result = "Ok" });
         }
 
-        [HttpPost("ImgUpload/{id}")]
+        [HttpPost("Promo/ImgUpload/{id}")]
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {

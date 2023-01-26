@@ -27,6 +27,47 @@ namespace euroma2.Models
 
     }
 
+    public class ShopCMS
+    {
+        public ShopCMS() { }
+        public ShopCMS(Shop s) {
+            this.id = s.id;
+            this.photo = s.photo;
+            this.title = s.title;
+            this.categoryId = s.categoryId;
+            this.type = s.type;
+            this.subcategoryId = s.subcategoryId;
+            this.logo = s.logo;
+            this.openingHours = s.openingHours;
+            this.phoneNumber = s.phoneNumber;
+            this.description = s.description;
+            this.firstOpeningDay = s.firstOpeningDay;
+            this.interestIds = s.interestIds;
+        }
+        public int id { get; set; }
+        public string title { get; set; }
+        public string? title_it { get; set; }
+        public ShopType type { get; set; }
+        public int categoryId { get; set; }
+        public int subcategoryId { get; set; }
+        public string logo { get; set; }
+        public string photo { get; set; }
+        public ICollection<oDay> openingHours { get; set; }
+        public string phoneNumber { get; set; }
+        public string description { get; set; }
+        public string? description_it { get; set; }
+        public string firstOpeningDay { get; set; }
+        public List<LineaInterest_shop> interestIds { get; set; }
+
+    }
+
+    public class Shop_it { 
+        public int id { get; set; }
+        public string title { get; set; }
+        public string description { get; set;}
+        public Shop shop { get; set; }
+    }
+
     public class LineaInterest_shop
     {
         [Key]

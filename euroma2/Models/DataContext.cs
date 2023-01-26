@@ -34,17 +34,32 @@ namespace euroma2.Models
         }
 
         public DbSet<Shop> shop { get; set; } = null!;
+        public DbSet<Shop_it> shop_it { get; set; } = null!;
+
+
+
         public DbSet<ShopCategory> shopCategory { get; set; } = null!;
+
+        public DbSet<ShopCategory_it> shopCategory_it { get; set; } = null!;
+
         public DbSet<ShopSubCategory> shopSubCategory { get; set; } = null!;
+        public DbSet<ShopSubCategory_it> shopSubCategory_it { get; set; } = null!;
         public DbSet<Mall_Event> events { get; set; } = null!;
+        public DbSet<Mall_Event_it> events_it { get; set; } = null!;
         public DbSet<Opening> opening_hours { get; set; } = null!;
         public DbSet<General> opening_general { get; set; } = null!;
         public DbSet<Exception_Rules> opening_exceptions { get; set; } = null!;
         public DbSet<Interest_model> interests { get; set; } = null!;
+        public DbSet<Interest_model_it> interests_it { get; set; } = null!;
         public DbSet<Promotion> promotion { get; set; } = null!;
+        public DbSet<Promotion_it> promotion_it { get; set; } = null!;
         public DbSet<Reach_Us> reach { get; set; } = null!;
+        public DbSet<Reach_Us_it> reach_it { get; set; } = null!;
+
         public DbSet<Service_model> service { get; set; } = null!;
+        public DbSet<Service_model_it> service_it { get; set; } = null!;
         public DbSet<FloorInfo> floor_info { get; set; } = null!;
+        public DbSet<FloorInfo_it> floor_info_it { get; set; } = null!;
         public DbSet<FloorNavPoint> floor_navpoint { get; set; }
         public DbSet<FloorNavPointRelation> floor_navpoint_relation { get; set; }
         public DbSet<FloorShop> floor_shop { get; set; }

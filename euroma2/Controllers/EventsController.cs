@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace euroma2.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class EventsController : ControllerBase
     {
@@ -23,8 +23,8 @@ namespace euroma2.Controllers
             this._options = options.Value;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<EventView>>> GetEvents()
+        [HttpGet("{lang}/Events")]
+        public async Task<ActionResult<IEnumerable<EventView>>> GetEvents(string lang)
         {
             if (_dbContext.events == null)
             {
@@ -41,7 +41,17 @@ namespace euroma2.Controllers
             foreach (Mall_Event s in t)
             {
                 EventView res = new EventView(s);
-
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .events_it
+                    .FirstOrDefaultAsync(p => p.id == s.id);
+                    if (it != null)
+                    {
+                        res.title = it.title;
+                        res.description = it.description;
+                    }
+                }
                 res.interestIds = GetInterest(s.interestIds);
                 sc.Add(res);
             }
@@ -50,10 +60,10 @@ namespace euroma2.Controllers
 
         }
 
-        [HttpGet("EventCMS")]
-        public async Task<ActionResult<IEnumerable<Mall_Event>>> GetPromos()
+        [HttpGet("Events/EventCMS")]
+        public async Task<ActionResult<IEnumerable<Mall_EventCMS>>> GetPromos()
         {
-            if (_dbContext.promotion == null)
+            /*if (_dbContext.promotion == null)
             {
                 return NotFound();
             }
@@ -63,7 +73,32 @@ namespace euroma2.Controllers
                 .Include(a => a.dateRange)
                 .ToListAsync();
             return t;
+            */
+            if (_dbContext.events == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                      .events
+                      .Include(a => a.interestIds)
+                      .Include(a => a.dateRange)
+                      .ToListAsync();
+            var l = await _dbContext.events_it.ToListAsync();
 
+            List<Mall_EventCMS> sc = new List<Mall_EventCMS>();
+
+            foreach (Mall_Event s in t)
+            {
+                Mall_EventCMS res = new Mall_EventCMS(s);
+                var elem = l.Find(x => x.mall_event!= null && x.mall_event.id == s.id);
+                if (elem != null)
+                {
+                    res.title_it = elem.title;
+                    res.description_it = elem.description;
+                }
+                sc.Add(res);
+            }
+            return sc;
         }
 
         private List<int> GetInterest(List<LineaInterest_event> interest)
@@ -79,19 +114,41 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("Events")]
         [Authorize]
-        public async Task<ActionResult<Mall_Event>> PostEvents(Mall_Event events)
+        public async Task<ActionResult<Mall_EventCMS>> PostEvents(Mall_EventCMS promo)
         {
-            _dbContext.events.Add(events);
+            /*_dbContext.events.Add(events);
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return CreatedAtAction(nameof(GetEvents), new { id = events.id }, events);
+            return CreatedAtAction(nameof(GetEvents), new { id = events.id }, events);*/
+
+            Mall_Event p = new Mall_Event();
+            Mall_Event_it p_it = new Mall_Event_it();
+            p.dateRange = promo.dateRange;
+            p.image = promo.image;
+            p.title = promo.title;
+            p.description = promo.description;
+
+            _dbContext.events.Add(p);
+
+            await _dbContext.SaveChangesAsync();
+            var res = CreatedAtAction(nameof(GetEvents), new { id = p.id, lang = "en" }, p);
+
+            p_it.id = p.id;
+            p_it.mall_event = p;
+            p_it.title = promo.title_it;
+            p_it.description = promo.description_it;
+
+            _dbContext.events_it.Add(p_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEvents), new { id = p.id, lang = "en" }, p); ;
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EventView>> GetEvents(int id)
+        [HttpGet("{lang}/Events/{id}")]
+        public async Task<ActionResult<EventView>> GetEvents(int id, string lang)
         {
             if (_dbContext.events == null)
             {
@@ -109,30 +166,63 @@ namespace euroma2.Controllers
             }
 
             EventView res = new EventView(t);
-
+            if (lang == "it")
+            {
+                var it = await _dbContext
+                .events_it
+                .FirstOrDefaultAsync(p => p.id == id);
+                if (it != null)
+                {
+                    res.title = it.title;
+                    res.description = it.description;
+                }
+            }
             res.interestIds = GetInterest(t.interestIds);
 
 
             return res;
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Events/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutEvents(int id, Mall_Event events)
+        public async Task<IActionResult> PutEvents(int id, Mall_EventCMS events)
         {
             if (id != events.id)
             {
                 return BadRequest();
             }
 
-            /*await DeleteInterestEvent(promo.id);
-            await PostInterest(promo);
-            */
-            //_dbContext.Entry(events.interestIds).State = EntityState.Modified;
+
+            Mall_Event sc = new Mall_Event();
+            sc.id = events.id;
+            sc.dateRange = events.dateRange;
+            sc.image = events.image;
+            sc.description = events.description;
+            sc.title = events.title;
+            sc.interestIds = events.interestIds;
+
+            Mall_Event_it scit = new Mall_Event_it();
+            scit.id = events.id;
+            scit.title = events.title_it;
+            scit.description = events.description_it;
+            scit.mall_event = sc;
+
+            _dbContext.Entry(sc).State = EntityState.Modified;
+
+            if (_dbContext.events_it.Any(e => e.id == events.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.events_it.Add(scit);
+            }
+
+
+
 
             _dbContext.Entry(events.dateRange).State = EntityState.Modified;
 
-            _dbContext.Entry(events).State = EntityState.Modified;
 
 
             await DeleteInterestEvent(events.id);
@@ -170,7 +260,7 @@ namespace euroma2.Controllers
             return (_dbContext.liEvents?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Events/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteEvents(int id)
         {
@@ -223,7 +313,7 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPost("ImgUpload/{id}")]
+        [HttpPost("Events/ImgUpload/{id}")]
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {

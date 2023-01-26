@@ -10,6 +10,9 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using euroma2.Migrations;
+using euroma2.Models.Reach;
+using System.Xml;
 
 namespace euroma2.Controllers
 {
@@ -40,23 +43,77 @@ namespace euroma2.Controllers
             return this.Ok(new PutResult { result = "Ok" });
         }
 
-        [HttpGet("Floor")]
-        public async Task<ActionResult<IEnumerable<FloorInfo>>> Get()
+        [HttpGet("{lang}/Floor")]
+        public async Task<ActionResult<IEnumerable<FloorInfo>>> Get(string lang)
         {
 
             var t = await this._dbContext
                 .floor_info
                 .ToListAsync();
-
+            foreach (FloorInfo s in t)
+            {
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .floor_info_it
+                    .FirstOrDefaultAsync(p => p.id == s.id);
+                    if (it != null)
+                    {
+                        s.name = it.name;
+                    }
+                }
+            }
             return t;
         }
 
-        [HttpGet("Floor/{id}")]
-        public async Task<ActionResult<FloorInfo>> GetFloor(int id)
+        [HttpGet("FloorCMS")]
+        public async Task<ActionResult<IEnumerable<FloorInfoUpdate>>> GetCMS()
+        {
+
+            var t = await _dbContext
+                 .floor_info
+                 .ToListAsync();
+
+            var l = await _dbContext.floor_info_it.ToListAsync();
+
+            List<FloorInfoUpdate> sc = new List<FloorInfoUpdate>();
+
+            foreach (FloorInfo s in t)
+            {
+                FloorInfoUpdate res = new FloorInfoUpdate();
+
+                res.id = s.id;
+                res.name = s.name;
+                res.modelUrl = s.modelUrl;
+                res.modelBinUrl = s.modelBinUrl;
+                res.floor = s.floor;
+
+                var elem = l.Find(x => x.fi != null && x.fi.id == s.id);
+                if (elem != null)
+                {
+                    res.name_it = elem.name;
+                }
+                sc.Add(res);
+            }
+            return sc;
+        }
+
+        [HttpGet("{lang}/Floor/{id}")]
+        public async Task<ActionResult<FloorInfo>> GetFloor(int id, string lang)
         {
             var t = await this._dbContext
                 .floor_info
                 .FirstOrDefaultAsync(p => p.id == id);
+
+            if (lang == "it") {
+                var it = await _dbContext
+                   .floor_info_it
+                   .FirstOrDefaultAsync(p => p.id == id);
+                if (it != null)
+                {
+                    t.name = it.name;
+                }
+            }
 
             if (t == null)
                 return this.NotFound();
@@ -64,15 +121,40 @@ namespace euroma2.Controllers
             return t;
         }
 
-        
+
 
         [HttpPost("Floor")]
         [Authorize]
-        public async Task<ActionResult<FloorInfo>> Post(FloorInfo serv)
+        public async Task<ActionResult<FloorInfo>> Post(FloorInfoUpdate serv)
         {
-            this._dbContext.floor_info.Add(serv);
+            /*this._dbContext.floor_info.Add(serv);
             await this._dbContext.SaveChangesAsync();
-            return this.CreatedAtAction(nameof(this.GetFloor), new { serv.id }, serv);
+            return this.CreatedAtAction(nameof(this.GetFloor), new { serv.id }, serv);*/
+
+            FloorInfo p = new FloorInfo();
+            FloorInfo_it p_it = new FloorInfo_it();
+            p.floor = serv.floor;
+            p.id = serv.id;
+            p.modelBinUrl = serv.modelBinUrl;
+            p.modelUrl = serv.modelUrl;
+            p.name = serv.name;
+            p.navPoints = new List<FloorNavPoint>();
+            p.shopsNodes = new List<FloorShop>();
+
+            _dbContext.floor_info.Add(p);
+
+            await _dbContext.SaveChangesAsync();
+            var res = CreatedAtAction(nameof(GetFloor), new { id = p.id, lang = "en" }, p);
+
+            p_it.id = p.id;
+            p_it.fi = p;
+            p_it.name = serv.name_it != null ? serv.name_it : "";
+
+            _dbContext.floor_info_it.Add(p_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetFloor), new { id = p.id, lang = "en" }, p); ;
+
         }
 
         [HttpPut("Floor/{id}")]
@@ -90,6 +172,19 @@ namespace euroma2.Controllers
             floorInfo.modelUrl = serv.modelUrl;
             floorInfo.name = serv.name;
 
+            FloorInfo_it scit = new FloorInfo_it();
+            scit.id = serv.id;
+            scit.name = serv.name_it != null ? serv.name_it : "";
+            scit.fi = floorInfo;
+
+            if (_dbContext.floor_info_it.Any(e => e.id == serv.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.floor_info_it.Add(scit);
+            }
 
 
             try
@@ -124,8 +219,8 @@ namespace euroma2.Controllers
 
         #region BABYLON
 
-        [HttpGet("FloorView/{id}")]
-        public async Task<ActionResult<FloorInfoView>> GetFloorView(int id)
+        [HttpGet("{lang}/FloorView/{id}")]
+        public async Task<ActionResult<FloorInfoView>> GetFloorView(int id, string lang)
         {
             var floorModel = await this._dbContext.floor_info
                 .AsNoTracking()
@@ -135,6 +230,18 @@ namespace euroma2.Controllers
                 .FirstOrDefaultAsync(f => f.id == id);
             if (floorModel == null)
                 return this.NotFound();
+
+
+            if (lang == "it")
+            {
+                var it = await _dbContext
+                   .floor_info_it
+                   .FirstOrDefaultAsync(p => p.fi.id == id);
+                if (it != null)
+                {
+                    floorModel.name = it.name;
+                }
+            }
 
             var shopNodes = new List<FloorShopView>();
             var info = new FloorInfoView
@@ -146,7 +253,7 @@ namespace euroma2.Controllers
                 shopsNodes = shopNodes
             };
 
-            
+
             foreach (var sn in floorModel.shopsNodes)
             {
                 var shopView = new FloorShopView
@@ -343,8 +450,8 @@ namespace euroma2.Controllers
 
         #region Mobile
 
-        [HttpGet]
-        public async Task<MapView> GetMap()
+        [HttpGet("{lang}")]
+        public async Task<MapView> GetMap(string lang)
         {
             var floorsInfo = await this._dbContext.floor_info.AsNoTracking()
                 .OrderBy(f => f.floor)
@@ -353,6 +460,8 @@ namespace euroma2.Controllers
                 .Include(f => f.shopsNodes)
                 .ToArrayAsync();
 
+
+
             var floors = new List<MapFloorView>();
             var completedGraph = new List<MapGraphNodeView>();
             var accessibilityGraph = new List<MapGraphNodeView>();
@@ -360,12 +469,26 @@ namespace euroma2.Controllers
 
             foreach (var floorInfo in floorsInfo)
             {
+
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                       .floor_info_it
+                       .FirstOrDefaultAsync(p => p.fi.id == floorInfo.id);
+                    if (it != null)
+                    {
+                        floorInfo.name = it.name;
+                    }
+                }
+
                 floors.Add(new MapFloorView
                 {
                     id = floorInfo.id,
                     name = floorInfo.name,
                     modelUrl = floorInfo.modelUrl
                 });
+
+
 
                 foreach (var np in floorInfo.navPoints)
                 {

@@ -8,10 +8,11 @@ using euroma2.Models.Service;
 using Microsoft.AspNetCore.Authorization;
 using euroma2.Services;
 using Microsoft.Extensions.Options;
+using euroma2.Migrations;
 
 namespace euroma2.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class ServiceController : ControllerBase
     {
@@ -24,8 +25,40 @@ namespace euroma2.Controllers
         }
 
         // GET: api/<InterestController>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Service_model>>> Get()
+        [HttpGet("{lang}/Service")]
+        public async Task<ActionResult<IEnumerable<Service_model>>> Get(string lang)
+        {
+            if (_dbContext.service == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .service
+                .ToListAsync();
+            foreach (Service_model s in t)
+            {
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .service_it
+                    .FirstOrDefaultAsync(p => p.id == s.id);
+                    if (it != null)
+                    {
+                        s.title = it.title;
+                        s.description = it.description;
+                    }
+                }
+            }
+            if (t == null)
+            {
+                return NotFound();
+            }
+
+            return t;
+        }
+
+        [HttpGet("Service")]
+        public async Task<ActionResult<IEnumerable<Service_modelCMS>>> Get()
         {
             if (_dbContext.service == null)
             {
@@ -35,17 +68,27 @@ namespace euroma2.Controllers
                 .service
                 .ToListAsync();
 
-            if (t == null)
-            {
-                return NotFound();
-            }
+            var l = await _dbContext.service_it.ToListAsync();
 
-            return t;
+            List<Service_modelCMS> sc = new List<Service_modelCMS>();
+
+            foreach (Service_model s in t)
+            {
+                Service_modelCMS res = new Service_modelCMS(s);
+                var elem = l.Find(x => x.sm != null && x.sm.id == s.id);
+                if (elem != null)
+                {
+                    res.title_it = elem.title;
+                    res.description_it = elem.description;
+                }
+                sc.Add(res);
+            }
+            return sc;
         }
 
         // GET api/<InterestController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Service_model>> GetService(int id)
+        [HttpGet("{lang}/Service/{id}")]
+        public async Task<ActionResult<Service_model>> GetService(int id, string lang)
         {
             if (_dbContext.service == null)
             {
@@ -53,8 +96,19 @@ namespace euroma2.Controllers
             }
             var t = await _dbContext
                 .service
-                .FirstOrDefaultAsync(p => p.id == id); ;
+                .FirstOrDefaultAsync(p => p.id == id); 
 
+            if (lang == "it")
+            {
+                var it = await _dbContext
+                .reach_it
+                .FirstOrDefaultAsync(p => p.id == id);
+                if (it != null)
+                {
+                    t.title = it.title;
+                    t.description = it.description;
+                }
+            }
             if (t == null)
             {
                 return NotFound();
@@ -64,27 +118,73 @@ namespace euroma2.Controllers
         }
 
         // POST api/<InterestController>
-        [HttpPost]
+        [HttpPost("Service")]
         [Authorize]
-        public async Task<ActionResult<Service_model>> Post(Service_model serv)
+        public async Task<ActionResult<Service_model>> Post(Service_modelCMS serv)
         {
-            _dbContext.service.Add(serv);
+            /*_dbContext.service.Add(serv);
             await _dbContext.SaveChangesAsync();
             //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return CreatedAtAction(nameof(GetService), new { id = serv.id }, serv);
+            return CreatedAtAction(nameof(GetService), new { id = serv.id }, serv);*/
+            Service_model p = new Service_model();
+            Service_model_it p_it = new Service_model_it();
+            p.icon = serv.icon;
+            p.order = serv.order;
+            p.title = serv.title;
+            p.description = serv.description;
+
+            _dbContext.service.Add(p);
+
+            await _dbContext.SaveChangesAsync();
+            var res = CreatedAtAction(nameof(GetService), new { id = p.id, lang = "en" }, p);
+
+            p_it.id = p.id;
+            p_it.sm = p;
+            p_it.title = serv.title_it;
+            p_it.description = serv.description_it;
+
+            _dbContext.service_it.Add(p_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetService), new { id = p.id, lang = "en" }, p); ;
         }
 
         // PUT api/<InterestController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Service/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutService(int id, Service_model serv)
+        public async Task<IActionResult> PutService(int id, Service_modelCMS serv)
         {
             if (id != serv.id)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(serv).State = EntityState.Modified;
+            // _dbContext.Entry(serv).State = EntityState.Modified;
+            Service_model sc = new Service_model();
+            sc.id = serv.id;
+            sc.icon = serv.icon;
+            sc.description = serv.description;
+            sc.title = serv.title;
+            sc.order = serv.order;
+
+            Service_model_it scit = new Service_model_it();
+            scit.id = serv.id;
+            scit.title = serv.title_it;
+            scit.description = serv.description_it;
+            scit.sm = sc;
+
+            _dbContext.Entry(sc).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            if (_dbContext.service_it.Any(e => e.id == serv.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.service_it.Add(scit);
+            }
+
 
             try
             {
@@ -110,7 +210,7 @@ namespace euroma2.Controllers
             return (_dbContext.service?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Service/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteService(int id)
         {
@@ -129,7 +229,7 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpPost("ImgUpload/{id}")]
+        [HttpPost("Service/ImgUpload/{id}")]
         [Authorize]
         public async Task<IActionResult> UploadToFileSystem(IFormFile file, int id)
         {

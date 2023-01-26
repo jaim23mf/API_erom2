@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace euroma2.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/")]
     [ApiController]
     public class InterestController : ControllerBase
     {
@@ -21,23 +21,32 @@ namespace euroma2.Controllers
         }
 
         // GET: api/<InterestController>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Interest_model>>> Get()
+        [HttpGet("Interest")]
+        public async Task<ActionResult<IEnumerable<Interest_modelCMS>>> Get()
         {
+ 
             if (_dbContext.interests == null)
             {
                 return NotFound();
             }
+
             var t = await _dbContext
-                .interests
-                .ToListAsync();
+                      .interests
+                      .ToListAsync();
+            var l = await _dbContext.interests_it.ToListAsync();
 
-            if (t == null)
+            List<Interest_modelCMS> sc = new List<Interest_modelCMS>();
+
+            foreach (Interest_model s in t)
             {
-                return NotFound();
+                Interest_modelCMS res = new Interest_modelCMS(s);
+                var elem = l.Find(x => x.interest_model != null && x.interest_model.id == s.id);
+                if (elem != null)
+                    res.name_it = elem.name;
+                sc.Add(res);
             }
+            return sc;
 
-            return t;
         }
 
 
@@ -73,7 +82,7 @@ namespace euroma2.Controllers
         }
 
         // GET api/<InterestController>/5
-        [HttpGet("{id}")]
+        [HttpGet("Interest/{id}")]
         public async Task<ActionResult<Interest_model>> GetInterest(int id)
         {
             if (_dbContext.interests == null)
@@ -93,27 +102,66 @@ namespace euroma2.Controllers
         }
 
         // POST api/<InterestController>
-        [HttpPost]
+        [HttpPost("Interest")]
         [Authorize]
-        public async Task<ActionResult<Interest_model>> Post( Interest_model interest)
+        public async Task<ActionResult<Interest_modelCMS>> Post(Interest_modelCMS interest)
         {
-            _dbContext.interests.Add(interest);
+
+            Interest_model i = new Interest_model();
+            Interest_model_it in_it = new Interest_model_it();
+            i.name = interest.name;
+            i.group = interest.group;
+            in_it.name = interest.name_it;
+
+            _dbContext.interests.Add(i);
+
             await _dbContext.SaveChangesAsync();
-            //return CreatedAtAction(nameof(GetShop), new { id = shop.id }, shop);
-            return CreatedAtAction(nameof(GetInterest), new { id = interest.id }, interest);
+            var res = CreatedAtAction(nameof(GetInterest), new { id = i.id, lang = "en" }, i);
+
+            in_it.id = i.id;
+            in_it.interest_model = i;
+            in_it.name = interest.name_it;
+
+            _dbContext.interests_it.Add(in_it);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetInterest), new { id = i.id, lang = "en" }, i); ;
         }
 
         // PUT api/<InterestController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Interest/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutInterest(int id, Interest_model interest)
+        public async Task<IActionResult> PutInterest(int id, Interest_modelCMS interest)
         {
             if (id != interest.id)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(interest).State = EntityState.Modified;
+            Interest_model sc = new Interest_model();
+            sc.id = interest.id;
+            sc.name = interest.name;
+            sc.group = interest.group;
+
+            Interest_model_it scit = new Interest_model_it();
+            scit.id = interest.id;
+            scit.name = interest.name_it;
+            scit.interest_model = sc;
+
+            _dbContext.Entry(sc).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+
+            if (_dbContext.interests_it.Any(e => e.id == interest.id))
+            {
+                _dbContext.Entry(scit).State = EntityState.Modified;
+            }
+            else
+            {
+                _dbContext.interests_it.Add(scit);
+            }
+
+
+            await _dbContext.SaveChangesAsync();
 
             try
             {
@@ -139,7 +187,7 @@ namespace euroma2.Controllers
             return (_dbContext.interests?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Interest/{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteInterest(int id)
         {

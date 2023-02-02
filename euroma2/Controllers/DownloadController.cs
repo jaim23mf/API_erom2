@@ -12,6 +12,8 @@ namespace euroma2.Controllers
         [HttpGet("ReachImg/{id}")]
         [HttpGet("ServiceImg/{id}")]
         [HttpGet("StoreImg/{id}")]
+        [HttpGet("BlogImg/{id}")]
+        [HttpGet("ThBlogImg/{id}")]
         public IActionResult ReturnStream(string id)
         {
             string route = Request.Path.Value;

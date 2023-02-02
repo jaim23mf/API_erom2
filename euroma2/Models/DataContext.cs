@@ -8,6 +8,7 @@ using euroma2.Models.Service;
 using euroma2.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using euroma2.Models.Blog_model;
 
 namespace euroma2.Models
 {
@@ -75,6 +76,8 @@ namespace euroma2.Models
         //public DbSet<Map_Graph_Node> map_graph_node { get; set; } = null!;
         //public DbSet<Map_Graph_Node_Relations> map_graph_node_relations { get; set; } = null;
 
+        public DbSet<Blog> blog { get; set; } = null!;
+        public DbSet<Blog_it> blog_it { get; set; } = null!;
 
 
 

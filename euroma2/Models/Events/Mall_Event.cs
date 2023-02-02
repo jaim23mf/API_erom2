@@ -15,6 +15,7 @@ namespace euroma2.Models.Events
         public string title { get; set; }
 
         public string description { get; set; }
+        public string youtubeLink { get; set; }
 
         public List<LineaInterest_event> interestIds { get; set; }
 
@@ -39,6 +40,7 @@ namespace euroma2.Models.Events
             this.title = p.title;
             this.description = p.description;
             this.interestIds = p.interestIds;
+            this.youtubeLink = p.youtubeLink;
         }
 
         public int id { get; set; }
@@ -52,6 +54,7 @@ namespace euroma2.Models.Events
 
         public string description { get; set; }
         public string? description_it { get; set; }
+        public string youtubeLink { get; set; }
 
         public List<LineaInterest_event> interestIds { get; set; }
 
@@ -78,6 +81,7 @@ namespace euroma2.Models.Events
             this.image = p.image;
             this.title = p.title;
             this.description = p.description;
+            this.youtubeLink = p.youtubeLink;
         }
 
         public int id { get; set; }
@@ -89,6 +93,7 @@ namespace euroma2.Models.Events
         public string title { get; set; }
 
         public string description { get; set; }
+        public string youtubeLink { get; set; }
 
         public List<int> interestIds { get; set; }
     }

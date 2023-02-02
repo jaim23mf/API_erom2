@@ -9,6 +9,8 @@
         public const string ServiceImg = "ServiceImg";
         public const string StoreImg = "StoreImg";
         public const string EventsImg = "EventsImg";
+        public const string BlogImg = "BlogImg";
+        public const string ThBlogImg = "ThBlogImg";
 
         public const string MimeGltf = "image/gif";
     }

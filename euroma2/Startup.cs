@@ -161,7 +161,9 @@ namespace euroma2
                 Consts.PromoImg,
                 Consts.ReachImg,
                 Consts.ServiceImg,
-                Consts.StoreImg
+                Consts.StoreImg,
+                Consts.BlogImg,
+                Consts.ThBlogImg
             };
 
              foreach (var folder in folders)

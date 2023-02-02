@@ -200,6 +200,7 @@ namespace euroma2.Controllers
             sc.description = events.description;
             sc.title = events.title;
             sc.interestIds = events.interestIds;
+            sc.youtubeLink = events.youtubeLink;
 
             Mall_Event_it scit = new Mall_Event_it();
             scit.id = events.id;

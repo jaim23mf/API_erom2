@@ -129,6 +129,7 @@ namespace euroma2.Controllers
             p.image = promo.image;
             p.title = promo.title;
             p.description = promo.description;
+            p.youtubeLink = promo.youtubeLink;
 
             _dbContext.events.Add(p);
 

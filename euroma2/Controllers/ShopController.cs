@@ -1,5 +1,4 @@
-﻿using euroma2.Migrations;
-using euroma2.Models;
+﻿using euroma2.Models;
 using euroma2.Models.Events;
 using euroma2.Models.Hours;
 using euroma2.Services;

@@ -8,7 +8,6 @@ using euroma2.Models.Service;
 using Microsoft.AspNetCore.Authorization;
 using euroma2.Services;
 using Microsoft.Extensions.Options;
-using euroma2.Migrations;
 
 namespace euroma2.Controllers
 {

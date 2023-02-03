@@ -601,7 +601,8 @@ namespace euroma2.Controllers
                 var l = await _dbContext
                            .shopCategory_it.
                            FirstOrDefaultAsync(p => p.id == id);
-                t.title = l.title;
+                if(t!=null && l!= null && l.title!=null)
+                    t.title = l.title;
             }
 
             if (t == null)
@@ -637,7 +638,8 @@ namespace euroma2.Controllers
                         .ToListAsync();
                 foreach (var cat in list) {
                     var elem = t.Find(x => x.id == cat.id);
-                    cat.title = elem.title;
+                    if ( elem!=null && elem.title != null)
+                        cat.title = elem.title;
                 }
                 return list;
             }
@@ -795,7 +797,8 @@ namespace euroma2.Controllers
                 var l = await _dbContext
                            .shopSubCategory_it.
                            FirstOrDefaultAsync(p => p.id == id);
-                t.title = l.title;
+                if (t!= null && l != null && l.title != null)
+                    t.title = l.title;
             }
 
             if (t == null)
@@ -866,7 +869,8 @@ namespace euroma2.Controllers
                 foreach (var cat in list)
                 {
                     var elem = t.Find(x => x.id == cat.id);
-                    cat.title = elem.title;
+                    if (elem != null && elem.title != null)
+                        cat.title = elem.title;
                 }
                 return list;
             }

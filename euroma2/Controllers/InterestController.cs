@@ -50,8 +50,8 @@ namespace euroma2.Controllers
         }
 
 
-        [HttpGet("InterestMobile")]
-        public async Task<ActionResult<IEnumerable<Interest_View>>> GetIn()
+        [HttpGet("{lang}/InterestMobile")]
+        public async Task<ActionResult<IEnumerable<Interest_View>>> GetIn(string lang)
         {
             if (_dbContext.interests == null)
             {
@@ -71,6 +71,14 @@ namespace euroma2.Controllers
                 Interest_View inter = new Interest_View();
                 inter.id = t[i].id;
                 inter.name = t[i].name;
+
+                if (lang == "it") {
+                    var l = await _dbContext
+                          .interests_it.
+                          FirstOrDefaultAsync(p => p.id == inter.id);
+                    if (inter != null && l != null && l.name != null)
+                        inter.name = l.name;
+                }
 
                 var st = (Interest_Group)t[i].group;
                 inter.group = st.ToString();

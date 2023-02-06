@@ -612,6 +612,41 @@ namespace euroma2.Controllers
             return t;
         }
 
+        [HttpGet("Shop/{lang}/CategoryM")]
+        public async Task<ActionResult<IEnumerable<ShopCategoryM>>> GetCategoryM(string lang)
+        {
+            if (_dbContext.shopCategory == null)
+            {
+                return NotFound();
+            }
+            var t = await _dbContext
+                .shopCategory
+                .ToListAsync();
+
+            List<ShopCategoryM> lsc = new List<ShopCategoryM>();
+
+            for (int i = 0; i < t.Count; i++)
+            {
+                ShopCategoryM sc = new ShopCategoryM();
+                sc.id = t[i].id;
+                sc.title = t[i].title;
+
+                if (lang == "it")
+                {
+                    var l = await _dbContext
+                               .shopCategory_it.
+                               FirstOrDefaultAsync(p => p.id == sc.id);
+                    if (sc != null && l != null && l.title != null)
+                        sc.title = l.title;
+                }
+                
+                var st = (StoreType)t[i].shopType;
+                sc.shopType = st.ToString();
+                lsc.Add(sc);
+            }
+
+            return lsc;
+        }
 
 
         [HttpGet("Shop/{lang}/Category")]

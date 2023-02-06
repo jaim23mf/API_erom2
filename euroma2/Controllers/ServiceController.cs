@@ -56,6 +56,41 @@ namespace euroma2.Controllers
             return t;
         }
 
+
+        [HttpGet("{lang}/Service/ServiceView")]
+        public async Task<ActionResult<IEnumerable<ServiceView>>> GetView(string lang)
+        {
+            var t = await _dbContext
+                .service
+                .Select(s => new ServiceView
+                {
+                    description = s.description,
+                    iconOff = s.icon,
+                    iconOn = s.icon,
+                    id = s.id,
+                    order = s.order,
+                    title = s.title
+                }).ToListAsync();
+
+            foreach (ServiceView s in t)
+            {
+                if (lang == "it")
+                {
+                    var it = await _dbContext
+                    .service_it
+                    .FirstOrDefaultAsync(p => p.id == s.id);
+                    if (it != null)
+                    {
+                        s.title = it.title;
+                        s.description = it.description;
+                    }
+                }
+            }
+
+            return t;
+        }
+
+
         [HttpGet("Service")]
         public async Task<ActionResult<IEnumerable<Service_modelCMS>>> Get()
         {

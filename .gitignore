@@ -21,3 +21,11 @@ euroma2/obj/Debug/net6.0/apphost.exe
 *.cache
 euroma2/FloorGltf/PTA00.gltf
 euroma2/obj/Debug/net6.0/apphost.exe
+*.config
+*.v2
+*.vsidx
+*.vsidx
+*.vsidx
+*.vsidx
+*.vsidx
+*.lock

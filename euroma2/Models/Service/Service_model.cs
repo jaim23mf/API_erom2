@@ -36,4 +36,16 @@ namespace euroma2.Models.Service
         public int? order { get; set; }
         public string icon { get; set; }
     }
+
+        public class ServiceView
+    {
+        public int id { get; set; }
+        public string title { get; set; }
+        public string description { get; set; }
+        public int? order { get; set; }
+        public string iconOn { get; set; }
+        public string iconOff { get; set; }
+
+    }
+
 }

@@ -641,7 +641,8 @@ namespace euroma2.Controllers
                 }
                 
                 var st = (StoreType)t[i].shopType;
-                sc.shopType = st.ToString();
+                string type = st.ToString();
+                sc.shopType = type.Equals("none") ? "":type;
                 lsc.Add(sc);
             }
 

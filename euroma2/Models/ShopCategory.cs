@@ -44,6 +44,7 @@ namespace euroma2.Models
     }
 
     public enum StoreType {
+        none=0,
         foodAndBeverage = 1,
         store=2
     }

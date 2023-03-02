@@ -53,8 +53,9 @@ namespace euroma2.Controllers
                     UserName = request.UserName,
                     Token = String.Empty,
                     RefreshToken = null,
+                    profile = 0,
                     Logged = false
-                });
+                }) ;
             }
 
             if (!_userService.IsValidUser(request.UserName, request.Password))
@@ -64,6 +65,7 @@ namespace euroma2.Controllers
                     UserName = request.UserName,
                     Token = String.Empty,
                     RefreshToken = null,
+                    profile = 0,
                     Logged = false
                 });
             }
@@ -90,6 +92,7 @@ namespace euroma2.Controllers
                 UserName = request.UserName,
                 Token = token,
                 RefreshToken = GenerateRefreshToken(request.UserName),
+                profile = _userService.GetProfile(request.UserName,request.Password),
                 Logged = true
             });
         }
@@ -242,6 +245,7 @@ namespace euroma2.Controllers
             public string UserName { get; set; }
             public string Token { get; set; }
             public RefreshToken RefreshToken { get; set; }
+            public int profile { get; set; }
             public Boolean Logged { get; set; }
         }
 

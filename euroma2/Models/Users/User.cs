@@ -7,6 +7,8 @@
 
         public string password { get; set; }
 
+        public int profile { get; set; }
+
         public string RefreshToken { get; set; }
         public string RefreshTokenExpires { get; set; }
     }

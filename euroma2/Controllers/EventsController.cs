@@ -266,11 +266,11 @@ namespace euroma2.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteEvents(int id)
         {
-            if (_dbContext.promotion == null)
+            if (_dbContext.events == null)
             {
                 return NotFound();
             }
-            var ss = await _dbContext.promotion.FindAsync(id);
+            var ss = await _dbContext.events.FindAsync(id);
             if (ss == null)
             {
                 return Ok(new PutResult { result = "Ok" });
@@ -278,7 +278,7 @@ namespace euroma2.Controllers
 
             await DeleteInterestEvent(ss.id);
 
-            _dbContext.promotion.Remove(ss);
+            _dbContext.events.Remove(ss);
             await _dbContext.SaveChangesAsync();
             return Ok(new PutResult { result = "Ok" });
         }

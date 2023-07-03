@@ -11,6 +11,7 @@
         public const string EventsImg = "EventsImg";
         public const string BlogImg = "BlogImg";
         public const string ThBlogImg = "ThBlogImg";
+        public const string FireImg = "FireImg";
 
         public const string MimeGltf = "image/gif";
     }

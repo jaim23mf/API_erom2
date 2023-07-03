@@ -162,6 +162,7 @@ namespace euroma2
                 Consts.ReachImg,
                 Consts.ServiceImg,
                 Consts.StoreImg,
+                Consts.FireImg,
                 Consts.BlogImg,
                 Consts.ThBlogImg
             };

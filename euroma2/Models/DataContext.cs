@@ -9,6 +9,7 @@ using euroma2.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using euroma2.Models.Blog_model;
+using euroma2.Models.Firebase;
 
 namespace euroma2.Models
 {
@@ -79,7 +80,7 @@ namespace euroma2.Models
         public DbSet<Blog> blog { get; set; } = null!;
         public DbSet<Blog_it> blog_it { get; set; } = null!;
 
-
+        public DbSet<Firebase_model> fire { get; set; } = null!;
 
 
     }
